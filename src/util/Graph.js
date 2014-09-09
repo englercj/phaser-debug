@@ -1,4 +1,6 @@
-function Graph(container, width, height, dataStyles) {
+function Graph(container, width, height, dataStyles, options) {
+    options = options || {};
+
     this.canvas = document.createElement('canvas');
     this.canvas.width = width;
     this.canvas.height = height;
@@ -10,10 +12,10 @@ function Graph(container, width, height, dataStyles) {
     this.labelPrecision = 0;
     this.labelStyle = 'rgba(200, 200, 200, 0.6)';
 
-    this.maxValue = 50;
-    this.padding = 5;
+    this.maxValue = options.maxValue || 50;
+    this.padding = options.labelPadding || 5;
 
-    this.dataLineWidth = 1;
+    this.dataLineWidth = options.lineWidth || 1;
     this.legendWidth = 115;
 
     this.styles = dataStyles || {};
@@ -26,10 +28,15 @@ function Graph(container, width, height, dataStyles) {
         this.styles.event = 'gray';
     }
 
-    this.gbuffer = document.createElement('canvas');
-    this.gbuffer.width = width - this.dataLineWidth - this.legendWidth;
-    this.gbuffer.height = height;
-    this.gctx = this.gbuffer.getContext('2d');
+    this.dataCanvas = document.createElement('canvas');
+    this.dataCanvas.width = width - this.legendWidth;
+    this.dataCanvas.height = height;
+    this.dctx = this.dataCanvas.getContext('2d');
+
+    this.dataCanvasBuffer = document.createElement('canvas');
+    this.dataCanvasBuffer.width = this.dataCanvas.width - this.dataLineWidth;
+    this.dataCanvasBuffer.height = this.dataCanvas.height;
+    this.bctx = this.dataCanvasBuffer.getContext('2d');
 };
 
 Graph.prototype.constructor = Graph;
@@ -38,20 +45,6 @@ module.exports = Graph;
 
 // render the graph with the new data point
 Graph.prototype.addData = function (values) {
-    // store the graph to the buffer, skipping the first line
-    this.gctx.clearRect(0, 0, this.gbuffer.width, this.gbuffer.height);
-    this.gctx.drawImage(
-        this.canvas,
-        this.legendWidth + this.dataLineWidth,
-        0,
-        this.gbuffer.width,
-        this.gbuffer.height,
-        0,
-        0,
-        this.gbuffer.height,
-        this.gbuffer.height
-    );
-
     // clear the main canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -115,34 +108,49 @@ Graph.prototype.drawLegend = function (values) {
 };
 
 Graph.prototype.drawData = function (values) {
-    // draw the data buffer back down, this gives the effect of "shifting" it to the left by 1
-    this.ctx.drawImage(this.gbuffer, this.legendWidth, 0);
-
-    // draw the new data point
-    var x = this.canvas.width - this.dataLineWidth,
-        y = this.canvas.height,
+    var x = this.dataCanvas.width - this.dataLineWidth,
+        y = this.dataCanvas.height,
         step = 0;
 
+    // clear the buffer
+    this.bctx.clearRect(0, 0, this.dataCanvasBuffer.width, this.dataCanvasBuffer.height);
+
+    // draw the data canvas to the buffer, skipping the first line
+    this.bctx.drawImage(
+        this.dataCanvas,
+        this.dataLineWidth, 0, x, y,
+        0, 0, x, y
+    );
+
+    // clear the data canvas
+    this.dctx.clearRect(0, 0, this.dataCanvas.width, this.dataCanvas.height);
+
+    // draw the buffer back to the data canvas
+    this.dctx.drawImage(this.dataCanvasBuffer, 0, 0);
+
+    // draw the new data point
     for(var k in values) {
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = this.ctx.fillStyle = this.styles[k] || this.styles._default;
-        this.ctx.lineWidth = this.dataLineWidth;
+        this.dctx.beginPath();
+        this.dctx.strokeStyle = this.dctx.fillStyle = this.styles[k] || this.styles._default;
+        this.dctx.lineWidth = this.dataLineWidth;
 
         if (k === 'event') {
-            if (values[k] === null) continue;
+            if (values[k] == null) continue;
 
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, this.canvas.height);
-            ctx.fillText(values[k], x + this.padding, (this.padding * 2));
+            this.dctx.moveTo(x, 0);
+            this.dctx.lineTo(x, this.dataCanvas.height);
+            this.dctx.fillText(values[k], x + this.padding, (this.padding * 2));
         }
         else {
-            step = ((values[k] / this.max) * this.canvas.height);
+            step = ((values[k] / this.max) * this.dataCanvas.height);
             step = step < 0 ? 0 : step;
 
-            ctx.moveTo(x, y);
-            ctx.lineTo(x, y-=step);
+            this.dctx.moveTo(x, y);
+            this.dctx.lineTo(x, y-=step);
         }
 
-        ctx.stroke();
+        this.dctx.stroke();
     }
+
+    this.ctx.drawImage(this.dataCanvas, this.legendWidth, 0);
 };

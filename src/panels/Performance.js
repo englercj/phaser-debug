@@ -1,3 +1,5 @@
+// TODO: Not measuring render time!!
+
 var Panel = require('./Panel'),
     Graph = require('../util/Graph');
 
@@ -20,13 +22,15 @@ Performance.prototype.createPanelElement = function () {
     var div = Panel.prototype.createPanelElement.call(this);
 
     this.graph = new Graph(div, window.innerWidth - 20, 250 - 5, {
-        input: 'rgba(80, 220, 80, 1)',
-        camera: 'rgba(80, 80, 220, 1)',
-        phys: 'rgba(80, 220, 200, 1)',
-        user: 'rgba(200, 80, 220, 1)',
-        draw: 'rgba(220, 80, 80, 1)',
-        debug: 'rgba(220, 220, 80, 1)',
-        event: 'rgba(200, 200, 200, 0.6)'
+        state    : 'rgba(220, 80, 80, 1)',
+        stage    : 'rgba(220, 80, 80, 1)',
+        tweens   : 'rgba(220, 80, 80, 1)',
+        sound    : 'rgba(80, 80, 220, 1)',
+        input    : 'rgba(80, 220, 80, 1)',
+        physics  : 'rgba(80, 220, 200, 1)',
+        particles: 'rgba(220, 220, 80, 1)',
+        plugins  : 'rgba(200, 80, 220, 1)',
+        event    : 'rgba(200, 200, 200, 0.6)'
     });
 
     this.graph.max = 45;

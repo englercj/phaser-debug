@@ -27,9 +27,12 @@
     "gulp-util": "^3.0.1",
     "jshint-summary": "^0.4.0",
     "vinyl-source-stream": "^0.1.1",
+    "node-lessify": "0.0.4",
     "watchify": "^1.0.2"
   },
-  "dependencies": {
-    "lessify": "^0.4.1"
+  "browserify": {
+      "transform-options": {
+          "node-lessify": "textMode"
+      }
   }
 }

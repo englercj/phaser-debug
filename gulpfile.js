@@ -28,7 +28,7 @@ function createBundler(args) {
 
     var bundler = browserify(index, args);
 
-    bundler.transform('lessify');
+    bundler.transform('node-lessify');
 
     return bundler;
 }
