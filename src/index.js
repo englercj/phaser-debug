@@ -42,21 +42,23 @@ function Debug(game, parent) {
         fps: null,
         dpf: null
     };
-
-    //add element to the page
-    ui.addCss(css);
-    document.body.appendChild(this._createElement());
-
-    this._bindEvents();
 };
 
 //  Extends the Phaser.Plugin template, setting up values we need
 Debug.prototype = Object.create(Phaser.Plugin.prototype);
 Debug.prototype.constructor = Debug;
 
+module.exports = Debug;
+
 Debug.prototype.init = function () {
     // create the panels
     this.panels.performance = new PerformancePanel(this.game, this);
+
+    // add elements to the page
+    ui.addCss(css);
+    document.body.appendChild(this._createElement());
+
+    this._bindEvents();
 
     // wrap each component's update method so we can time it
     for (var p in this.timings) {
@@ -228,10 +230,11 @@ Debug.prototype._createElement = function () {
 };
 
 Debug.prototype._createMenuHead = function () {
-    var div = document.createElement('div');
+    var div = document.createElement('div'),
+        r = this.game.renderType;
 
     ui.addClass(div, 'pdebug-head');
-    ui.setText(div, 'Gf Debug (' + this.game.renderMethod + '):');
+    ui.setText(div, 'Phaser Debug (' + (r === Phaser.WEBGL ? 'WebGL' : (r === Phaser.HEADLESS ? 'Headless' : 'Canvas')) + '):');
 
     return div;
 };

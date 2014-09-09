@@ -34,6 +34,8 @@ function Graph(container, width, height, dataStyles) {
 
 Graph.prototype.constructor = Graph;
 
+module.exports = Graph;
+
 // render the graph with the new data point
 Graph.prototype.addData = function (values) {
     // store the graph to the buffer, skipping the first line

@@ -1,3 +1,5 @@
+var ui = require('../util/ui');
+
 function Panel(game, parent) {
     this.game = game;
     this.parent = parent;
@@ -11,10 +13,12 @@ function Panel(game, parent) {
 
 Panel.prototype.constructor = Panel;
 
+module.exports = Panel;
+
 //builds the html for a panel
 Panel.prototype.createPanelElement = function () {
     var div = this._panel = document.createElement('div');
-    debug.ui.addClass(div, 'pdebug-panel ' + this.name);
+    ui.addClass(div, 'pdebug-panel ' + this.name);
 
     return div;
 };
@@ -22,8 +26,8 @@ Panel.prototype.createPanelElement = function () {
 //builds the html for this panels menu item
 Panel.prototype.createMenuElement = function () {
     var div = this._menuItem = document.createElement('div');
-    debug.ui.addClass(div, 'pdebug-menu-item ' + this.name);
-    debug.ui.setText(div, this.title);
+    ui.addClass(div, 'pdebug-menu-item ' + this.name);
+    ui.setText(div, this.title);
 
     return div;
 };
@@ -39,9 +43,9 @@ Panel.prototype.toggle = function () {
 };
 
 Panel.prototype.show = function () {
-    debug.ui.setStyle(this._panel, 'display', 'block');
+    ui.setStyle(this._panel, 'display', 'block');
 };
 
 Panel.prototype.hide = function () {
-    debug.ui.setStyle(this._panel, 'display', 'none');
+    ui.setStyle(this._panel, 'display', 'none');
 };

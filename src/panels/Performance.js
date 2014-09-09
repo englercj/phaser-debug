@@ -1,16 +1,20 @@
 var Panel = require('./Panel'),
     Graph = require('../util/Graph');
 
-function PerformancePanel(game, parent) {
+function Performance(game, parent) {
     Panel.call(this, game, parent);
 
     this.name = 'performance';
     this.title = 'Performance';
     this.eventQueue = [];
-};
+
+    this.derp = null;
+}
 
 Performance.prototype = Object.create(Panel.prototype);
 Performance.prototype.constructor = Performance;
+
+module.exports = Performance;
 
 Performance.prototype.createPanelElement = function () {
     var div = Panel.prototype.createPanelElement.call(this);

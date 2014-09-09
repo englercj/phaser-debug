@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    path = require('path'),
     gutil = require('gulp-util'),
     source = require('vinyl-source-stream'),
     watchify = require('watchify'),
@@ -9,10 +10,12 @@ var gulp = require('gulp'),
     bundle = 'Phaser.Plugin.Debug',
     outfile = 'phaser-debug.js';
 
-function rebundle(bundler) {
-    bundler = bundler || this;
+function rebundle(file) {
+    if (file) {
+        gutil.log('Rebundling,', path.basename(file[0]), 'has changes.');
+    }
 
-    return bundler.bundle()
+    return this.bundle()
         // log errors if they happen
         .on('error', gutil.log.bind(gutil, 'Browserify Error'))
         .pipe(source(outfile))
@@ -39,14 +42,14 @@ gulp.task('dev', function() {
 
     bundler.on('update', rebundle);
 
-    return rebundle(bundler);
+    return rebundle.call(bundler);
 });
 
 /*****
  * Build task, builds the output bundle
  *****/
 gulp.task('build', function () {
-    return rebundle(createBundler());
+    return rebundle.call(createBundler());
 });
 
 /*****
