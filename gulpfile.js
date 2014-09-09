@@ -19,12 +19,23 @@ function rebundle(bundler) {
         .pipe(gulp.dest(outdir));
 }
 
+function createBundler(args) {
+    args = args || {};
+    args.standalone = bundle;
+
+    var bundler = browserify(index, args);
+
+    bundler.transform('lessify');
+
+    return bundler;
+}
+
 /*****
  * Dev task, incrementally rebuilds the output bundle as the the sources change
  *****/
 gulp.task('dev', function() {
     watchify.args.standalone = bundle;
-    var bundler = watchify(browserify(index, watchify.args));
+    var bundler = watchify(createBundler(watchify.args));
 
     bundler.on('update', rebundle);
 
@@ -35,7 +46,7 @@ gulp.task('dev', function() {
  * Build task, builds the output bundle
  *****/
 gulp.task('build', function () {
-    return rebundle(browserify(index, { standalone: bundle }));
+    return rebundle(createBundler());
 });
 
 /*****

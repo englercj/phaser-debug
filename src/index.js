@@ -1,6 +1,5 @@
-var MapPanel = require('./panels/Map'),
-    SpritesPanel = require('./panels/Sprites'),
-    GamepadPanel = require('./panels/Gamepad'),
+var ui = require('./util/ui'),
+    css = require('./styles/main.less'),
     PerformancePanel = require('./panels/Performance');
 
 /**
@@ -34,6 +33,21 @@ function Debug(game, parent) {
         particles: 0,
         plugins  : 0
     };
+
+    this._container = null;
+    this._bar = null;
+
+    this._stats = {
+        ms: null,
+        fps: null,
+        dpf: null
+    };
+
+    //add element to the page
+    ui.addCss(css);
+    document.body.appendChild(this._createElement());
+
+    this._bindEvents();
 };
 
 //  Extends the Phaser.Plugin template, setting up values we need
@@ -42,9 +56,6 @@ Debug.prototype.constructor = Debug;
 
 Debug.prototype.init = function () {
     // create the panels
-    this.panels.map = new MapPanel(this.game, this);
-    this.panels.sprites = new SpritesPanel(this.game, this);
-    this.panels.gamepad = new GamepadPanel(this.game, this);
     this.panels.performance = new PerformancePanel(this.game, this);
 
     // wrap each component's update method so we can time it
@@ -89,7 +100,7 @@ Debug.prototype.init = function () {
  */
 Debug.prototype.postUpdate = function () {
     for (var p in this.panels) {
-        if (this.panels[p].update) {
+        if (this.panels[p].update && this.panels[p].active) {
             this.panels[p].update();
         }
     }
@@ -99,10 +110,10 @@ Debug.prototype.postUpdate = function () {
 
     fps = fps > 60 ? 60 : fps;
 
-    // // update stats indicators
-    // this.ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? 'N/A' : this._padString(dpf, 3));
-    // this.ui.setText(this._stats.ms.firstElementChild, this._padString(this.timings.game.toFixed(0), 4));
-    // this.ui.setText(this._stats.fps.firstElementChild, this._padString(fps.toFixed(0), 2));
+    // update stats indicators
+    ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? 'N/A' : this._padString(dpf, 3));
+    ui.setText(this._stats.ms.firstElementChild, this._padString(this.timings.game.toFixed(0), 4));
+    ui.setText(this._stats.fps.firstElementChild, this._padString(fps.toFixed(0), 2));
 };
 
 /**
@@ -158,7 +169,7 @@ Debug.prototype._wrap = function (obj, prop) {
     })(this, prop, obj[prop].update);
 };
 
-Debug.prototype._padString = function(str, to, pad) {
+Debug.prototype._padString = function (str, to, pad) {
     if (pad === undefined) { pad = '0'; }
 
     while(str.length < to) {
@@ -166,4 +177,84 @@ Debug.prototype._padString = function(str, to, pad) {
     }
 
     return str;
+};
+
+Debug.prototype._bindEvents = function () {
+    var activePanel,
+        self = this;
+
+    ui.delegate(this._bar, 'click', '.pdebug-menu-item', function(e) {
+        var panel = self.panels[e.target.className.replace(/pdebug-menu-item|active/g, '').trim()];
+
+        if(!panel)
+            return;
+
+        if(activePanel) {
+            activePanel.toggle();
+            ui.removeClass(activePanel._menuItem, 'active');
+
+            if(activePanel.name === panel.name) {
+                activePanel = null;
+                return;
+            }
+        }
+
+        ui.addClass(e.target, 'active');
+        panel.toggle();
+        activePanel = panel;
+    });
+};
+
+Debug.prototype._createElement = function () {
+    var c = this._container = document.createElement('div'),
+        bar = this._bar = document.createElement('div');
+
+    //container
+    ui.addClass(c, 'pdebug');
+    c.appendChild(bar);
+
+    //the menu bar
+    ui.addClass(bar, 'pdebug-menu');
+    bar.appendChild(this._createMenuHead());
+    bar.appendChild(this._createMenuStats());
+
+    //add the panels
+    for(var p in this.panels) {
+        bar.appendChild(this.panels[p].createMenuElement());
+        c.appendChild(this.panels[p].createPanelElement());
+    }
+
+    return c;
+};
+
+Debug.prototype._createMenuHead = function () {
+    var div = document.createElement('div');
+
+    ui.addClass(div, 'pdebug-head');
+    ui.setText(div, 'Gf Debug (' + this.game.renderMethod + '):');
+
+    return div;
+};
+
+Debug.prototype._createMenuStats = function () {
+    var div = document.createElement('div'),
+        fps = this._stats.fps = document.createElement('div'),
+        dpf = this._stats.dpf = document.createElement('div'),
+        ms = this._stats.ms = document.createElement('div');
+
+    ui.addClass(div, 'pdebug-stats');
+
+    ui.addClass(dpf, 'pdebug-stats-item dpf');
+    ui.setHtml(dpf, '<span>0</span> Draws Each Frame');
+    div.appendChild(dpf);
+
+    ui.addClass(ms, 'pdebug-stats-item ms');
+    ui.setHtml(ms, '<span>0</span> ms');
+    div.appendChild(ms);
+
+    ui.addClass(fps, 'pdebug-stats-item fps');
+    ui.setHtml(fps, '<span>0</span> fps');
+    div.appendChild(fps);
+
+    return div;
 };

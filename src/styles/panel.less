@@ -1,0 +1,101 @@
+@bar_height: 32px;
+@panel_height: 265px;
+
+@padding: 10px;
+
+//container
+.pdebug {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    .theme_container();
+
+    //menu bar
+    .pdebug-menu {
+        height: @bar_height;
+
+        .theme_bar();
+
+        //head of the menu bar
+        .pdebug-head {
+            float: left;
+            padding: 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
+            .border_menu_seperator();
+        }
+
+        //main bar stats
+        .pdebug-stats {
+            float:right;
+            padding: 0 0 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
+
+            //an item on the stats bar
+            .pdebug-stats-item {
+                float: left;
+                padding: 0 @padding;
+                text-align: right;
+                .border_menu_seperator();
+
+                //fps stat item
+                &.fps {}
+
+                //ms stat item
+                &.ms {}
+
+                //sprites stat item
+                &.obj {
+                    width: 100px;
+                    border: none;
+                }
+            }
+        }
+
+        //menu items (to switch between panels)
+        .gf_debug_menu_item {
+            float: left;
+            padding: 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
+            cursor: pointer;
+            .border_menu_seperator();
+
+            &.active {
+                .theme_item_active();
+            }
+        }
+    }
+
+    //panels
+    .gf_debug_panel {
+        display: none;
+        height: @panel_height;
+        overflow: auto;
+
+        //the map panel
+        &.map {
+            & > div {
+                float: left;
+                width: 200px;
+            }
+        }
+
+        //the sprites panel
+        &.sprites {
+            > div {
+                padding: 25px;
+            }
+        }
+
+        //the physics panel
+        &.physics {}
+
+        //the gamepad panel
+        &.gamepad {}
+
+        //the performance panel
+        &.performance {}
+    }
+}
