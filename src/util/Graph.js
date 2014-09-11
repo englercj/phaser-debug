@@ -18,6 +18,7 @@ function Graph(container, width, height, colors, options) {
     this.dataLineWidth = options.lineWidth || 1;
     this.legendWidth = 115;
     this.legendBoxSize = 10;
+    this.legendIndent = 10;
 
     this.colors = colors;
 
@@ -47,41 +48,36 @@ Graph.prototype.addData = function (values) {
 };
 
 Graph.prototype.drawBg = function () {
-    var ctx = this.ctx,
-        minX = this.legendWidth,
-        maxX = this.canvas.width,
-        maxY = this.canvas.height,
-        step = maxY / 3;
+    var step = this.canvas.height / 3;
 
-    ctx.strokeStyle = ctx.fillStyle = this.labelStyle;
+    this.ctx.strokeStyle = this.ctx.fillStyle = this.labelStyle;
 
     //draw top marker line
-    ctx.beginPath();
-    ctx.moveTo(minX, step);
-    ctx.lineTo(maxX, step);
-    ctx.stroke();
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.legendWidth, step);
+    this.ctx.lineTo(this.canvas.width, step);
+    this.ctx.stroke();
 
     //draw the second marker line
-    ctx.beginPath();
-    ctx.moveTo(minX, step*2);
-    ctx.lineTo(maxX, step*2);
-    ctx.stroke();
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.legendWidth, step*2);
+    this.ctx.lineTo(this.canvas.width, step*2);
+    this.ctx.stroke();
 
     //draw baseline marker
-    ctx.beginPath();
-    ctx.moveTo(minX, maxY);
-    ctx.lineTo(maxX, maxY);
-    ctx.stroke();
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.legendWidth, this.canvas.height);
+    this.ctx.lineTo(this.canvas.width, this.canvas.height);
+    this.ctx.stroke();
 
     //draw marker line text
-    ctx.fillText(((this.max / 3)*2).toFixed(this.labelPrecision) + this.label, minX + this.padding, step-this.padding);
-    ctx.fillText((this.max / 3).toFixed(this.labelPrecision) + this.label, minX + this.padding, (step*2)-this.padding);
+    this.ctx.fillText(((this.maxValue / 3)*2).toFixed(this.labelPrecision) + this.label, minX + this.padding, step-this.padding);
+    this.ctx.fillText((this.maxValue / 3).toFixed(this.labelPrecision) + this.label, minX + this.padding, (step*2)-this.padding);
 };
 
 Graph.prototype.drawLegend = function (values) {
     var colorIndex = 0,
         yIndex = 0,
-        indent = 10,
         y = 0;
 
     for (var k in values) {
@@ -98,10 +94,10 @@ Graph.prototype.drawLegend = function (values) {
             y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
 
             this.ctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
-            this.ctx.fillRect(indent + this.padding, y, this.legendBoxSize, this.legendBoxSize);
+            this.ctx.fillRect(legendIndent + this.padding, y, this.legendBoxSize, this.legendBoxSize);
 
             this.ctx.fillStyle = this.labelStyle;
-            this.ctx.fillText(values[k][c].toFixed(2) + 'ms - ' + k, indent + this.padding + this.legendBoxSize + this.padding, y + this.legendBoxSize);
+            this.ctx.fillText(values[k][c].toFixed(2) + 'ms - ' + k, legendIndent + this.padding + this.legendBoxSize + this.padding, y + this.legendBoxSize);
 
             ++yIndex;
         }
@@ -140,7 +136,7 @@ Graph.prototype.drawData = function (values) {
             this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length]
             this.dctx.lineWidth = this.dataLineWidth;
 
-            step = ((values[k][c] / this.max) * this.dataCanvas.height);
+            step = ((values[k][c] / this.maxValue) * this.dataCanvas.height);
             step = step < 0 ? 0 : step;
 
             this.dctx.moveTo(x, y);

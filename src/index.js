@@ -191,8 +191,9 @@ Debug.prototype._bindEvents = function () {
     ui.delegate(this._bar, 'click', '.pdebug-menu-item', function(e) {
         var panel = self.panels[e.target.className.replace(/pdebug-menu-item|active/g, '').trim()];
 
-        if(!panel)
+        if(!panel) {
             return;
+        }
 
         if(activePanel) {
             activePanel.toggle();
@@ -251,11 +252,11 @@ Debug.prototype._createMenuStats = function () {
     ui.addClass(div, 'pdebug-stats');
 
     ui.addClass(dpf, 'pdebug-stats-item dpf');
-    ui.setHtml(dpf, '<span>0</span> Draws Each Frame');
+    ui.setHtml(dpf, '<span>0</span> draws per-frame');
     div.appendChild(dpf);
 
     ui.addClass(ms, 'pdebug-stats-item ms');
-    ui.setHtml(ms, '<span>0</span> ms');
+    ui.setHtml(ms, '<span>0</span> ms tick');
     div.appendChild(ms);
 
     ui.addClass(fps, 'pdebug-stats-item fps');
