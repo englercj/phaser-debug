@@ -19,19 +19,44 @@ function Debug(game, parent) {
         performance: null
     };
 
-    this.timings = {
-        game     : 0,
-        gameTickStart: 0,
-        gameLastTickStart: 0,
+    this.tickTimings = {
+        lastStart: 0,
+        start: 0,
+        ms: 0
+    };
 
-        state    : 0,
-        stage    : 0,
-        tweens   : 0,
-        sound    : 0,
-        input    : 0,
-        physics  : 0,
-        particles: 0,
-        plugins  : 0
+    this.timings = {
+        preUpdate: {
+            physics  : 0,
+            state    : 0,
+            plugins  : 0,
+            stage    : 0
+        },
+        update: {
+            state    : 0,
+            stage    : 0,
+            tweens   : 0,
+            sound    : 0,
+            input    : 0,
+            physics  : 0,
+            particles: 0,
+            plugins  : 0
+        },
+        postUpdate: {
+            stage    : 0,
+            plugins  : 0
+        },
+        preRender: {
+            state    : 0
+        },
+        render: {
+            renderer : 0,
+            plugins  : 0,
+            state    : 0
+        },
+        postRender: {
+            plugins  : 0
+        }
     };
 
     this._container = null;
@@ -60,13 +85,15 @@ Debug.prototype.init = function () {
 
     this._bindEvents();
 
-    // wrap each component's update method so we can time it
-    for (var p in this.timings) {
-        this._wrap(this.game, p);
+    // wrap each component's update methods so we can time them
+    for (var method in this.timings) {
+        for (var comp in this.timings[method]) {
+            this._wrap(this.game, comp, method, comp);
+        }
     }
 
     // wrap the game update method
-    this._wrap(this, 'game');
+    this._wrap(this, 'game', 'update');
 
     // initialize each panel
     for (var p in this.panels) {
@@ -75,24 +102,6 @@ Debug.prototype.init = function () {
         }
     }
 };
-
-/**
- * Pre-update is called at the very start of the update cycle, before any other subsystems have been updated (including Physics).
- * It is only called if active is set to true.
- *
- * @method Phaser.Plugin.Debug#preUpdate
- */
-// Debug.prototype.preUpdate = function () {
-// };
-
-/**
- * Update is called after all the core subsystems (Input, Tweens, Sound, etc) and the State have updated, but before the render.
- * It is only called if active is set to true.
- *
- * @method Phaser.Plugin.Debug#update
- */
-// Debug.prototype.update = function () {
-// };
 
 /**
  * Post-Update is called after all the update methods have already been called, but before the render calls.
@@ -107,34 +116,16 @@ Debug.prototype.postUpdate = function () {
         }
     }
 
-    var fps = Math.round(1000 / (this.timings.gameTickStart - this.timings.gameLastTickStart)),
+    var fps = Math.round(1000 / (this.tickTimings.start - this.tickTimings.lastStart)),
         dpf = this.game.renderer.renderSession.drawCount;
 
     fps = fps > 60 ? 60 : fps;
 
     // update stats indicators
-    ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? 'N/A' : this._padString(dpf, 3));
-    ui.setText(this._stats.ms.firstElementChild, this._padString(this.timings.game.toFixed(0), 4));
+    ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? '(N/A)' : this._padString(dpf, 3));
+    ui.setText(this._stats.ms.firstElementChild, this._padString(this.tickTimings.ms.toFixed(0), 4));
     ui.setText(this._stats.fps.firstElementChild, this._padString(fps.toFixed(0), 2));
 };
-
-/**
- * Render is called right after the Game Renderer completes, but before the State.render.
- * It is only called if visible is set to true.
- *
- * @method Phaser.Plugin.Debug#render
- */
-// Debug.prototype.render = function () {
-// };
-
-/**
- * Post-render is called after the Game Renderer and State.render have run.
- * It is only called if visible is set to true.
- *
- * @method Phaser.Plugin.Debug#postRender
- */
-// Debug.prototype.postRender = function () {
-// };
 
 /**
  * Marks a point on the performance graph with a label to help you corrolate events and timing on the graph
@@ -147,28 +138,40 @@ Debug.prototype.mark = function (label) {
     }
 };
 
-Debug.prototype._wrap = function (obj, prop) {
-    if (!obj[prop] || !obj[prop].update) return;
+Debug.prototype._wrap = function (obj, component, method, timingStat) {
+    if (!obj[component] || !obj[component][method]) return;
 
-    obj[prop].update = (function(self, name, fn) {
+    obj[component][method] = (function(self, name, method, stat, fn) {
         var start = 0,
             end = 0;
 
-        return function () {
-            start = Date.now();
+        // special tick capture for game update
+        if (name === 'game' && method === 'update' && !stat) {
+            return function () {
+                start = Date.now();
 
-            if (name === 'game') {
-                self.timings.gameLastTickStart = self.timings.gameTickStart;
-                self.timings.gameTickStart = start;
-            }
+                self.tickTimings.lastStart = self.tickTimings.start;
+                self.tickTimings.start = start;
 
-            fn.apply(this, arguments);
+                fn.apply(this, arguments);
 
-            end = Date.now();
+                end = Date.now();
 
-            self.timings[name] = end - start;
-        };
-    })(this, prop, obj[prop].update);
+                self.tickTimings.ms = end - start;
+            };
+        }
+        else {
+            return function () {
+                start = Date.now();
+
+                fn.apply(this, arguments);
+
+                end = Date.now();
+
+                self.timings[method][stat] = end - start;
+            };
+        }
+    })(this, component, method, timingStat, obj[component][method]);
 };
 
 Debug.prototype._padString = function (str, to, pad) {

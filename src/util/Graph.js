@@ -1,4 +1,4 @@
-function Graph(container, width, height, dataStyles, options) {
+function Graph(container, width, height, colors, options) {
     options = options || {};
 
     this.canvas = document.createElement('canvas');
@@ -17,16 +17,9 @@ function Graph(container, width, height, dataStyles, options) {
 
     this.dataLineWidth = options.lineWidth || 1;
     this.legendWidth = 115;
+    this.legendBoxSize = 10;
 
-    this.styles = dataStyles || {};
-
-    if(!this.styles._default) {
-        this.styles._default = 'red';
-    }
-
-    if(!this.styles.event) {
-        this.styles.event = 'gray';
-    }
+    this.colors = colors;
 
     this.dataCanvas = document.createElement('canvas');
     this.dataCanvas.width = width - this.legendWidth;
@@ -85,29 +78,40 @@ Graph.prototype.drawBg = function () {
     ctx.fillText((this.max / 3).toFixed(this.labelPrecision) + this.label, minX + this.padding, (step*2)-this.padding);
 };
 
-Graph.prototype.drawLegend = function (values) {
-    var ctx = this.ctx,
-        i = 0,
-        box = 10,
-        pad = this.padding,
-        lbl = this.labelStyle;
+Graph.prototype.drawLegend = function (values, colorIndex, yIndex, indent) {
+    colorIndex = colorIndex || 0;
+    yIndex = yIndex || 0;
+    indent = indent || 0;
 
-    for(var k in this.styles) {
-        var style = this.styles[k],
-            y = (box * i) + (pad * (i+1)),
-            val = typeof values[k] === 'number' ? values[k].toFixed(2) : null,
-            text = k + (val ? ' (' + val + ' ms)' : '');
+    var x = indent + this.padding,
+        y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
 
-        ctx.fillStyle = style;
-        ctx.fillRect(pad, y, box, box);
-        ctx.fillStyle = lbl;
-        ctx.fillText(text, pad + box + pad, y + box);
+    for (var k in values) {
+        // draw parent label and recurse
+        if (typeof values[k] === 'object') {
+            // Draw parent label, and indent
+            this.ctx.fillStyle = this.labelStyle;
+            this.ctx.fillText(k, x, y);
 
-        i++;
+            // Draw children
+            this.drawLegend(values[k], colorIndex, ++yIndex, indent + this.legendBoxSize);
+        }
+        // draw child label
+        else {
+            this.ctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
+            this.ctx.fillRect(x, y, this.legendBoxSize, this.legendBoxSize);
+
+            this.ctx.fillStyle = this.labelStyle;
+            this.ctx.fillText(values[k].toFixed(2) + 'ms - ' + k, x + this.legendBoxSize + this.padding, y + this.legendBoxSize);
+
+            ++yIndex;
+        }
     }
 };
 
-Graph.prototype.drawData = function (values) {
+Graph.prototype.drawData = function (values, colorIndex) {
+    colorIndex = colorIndex || 0;
+
     var x = this.dataCanvas.width - this.dataLineWidth,
         y = this.dataCanvas.height,
         step = 0;
@@ -128,29 +132,31 @@ Graph.prototype.drawData = function (values) {
     // draw the buffer back to the data canvas
     this.dctx.drawImage(this.dataCanvasBuffer, 0, 0);
 
+    // draws the data values to the new line of the data canvas
+    this._drawDataValues(values, colorIndex);
+
+    // draw the data canvas to the main rendered canvas
+    this.ctx.drawImage(this.dataCanvas, this.legendWidth, 0);
+};
+
+Graph.prototype._drawDataValues = function (values, colorIndex) {
     // draw the new data point
-    for(var k in values) {
+    for (var k in values) {
+        if (typeof values[k] === 'object') {
+            this._drawDataValues(values[k], colorIndex);
+            continue;
+        }
+
         this.dctx.beginPath();
-        this.dctx.strokeStyle = this.dctx.fillStyle = this.styles[k] || this.styles._default;
+        this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length]
         this.dctx.lineWidth = this.dataLineWidth;
 
-        if (k === 'event') {
-            if (values[k] == null) continue;
+        step = ((values[k] / this.max) * this.dataCanvas.height);
+        step = step < 0 ? 0 : step;
 
-            this.dctx.moveTo(x, 0);
-            this.dctx.lineTo(x, this.dataCanvas.height);
-            this.dctx.fillText(values[k], x + this.padding, (this.padding * 2));
-        }
-        else {
-            step = ((values[k] / this.max) * this.dataCanvas.height);
-            step = step < 0 ? 0 : step;
-
-            this.dctx.moveTo(x, y);
-            this.dctx.lineTo(x, y-=step);
-        }
+        this.dctx.moveTo(x, y);
+        this.dctx.lineTo(x, y-=step);
 
         this.dctx.stroke();
     }
-
-    this.ctx.drawImage(this.dataCanvas, this.legendWidth, 0);
 };
