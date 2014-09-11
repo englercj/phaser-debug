@@ -78,43 +78,39 @@ Graph.prototype.drawBg = function () {
     ctx.fillText((this.max / 3).toFixed(this.labelPrecision) + this.label, minX + this.padding, (step*2)-this.padding);
 };
 
-Graph.prototype.drawLegend = function (values, colorIndex, yIndex, indent) {
-    colorIndex = colorIndex || 0;
-    yIndex = yIndex || 0;
-    indent = indent || 0;
-
-    var x = indent + this.padding,
-        y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
+Graph.prototype.drawLegend = function (values) {
+    var colorIndex = 0,
+        yIndex = 0,
+        indent = 10,
+        y = 0;
 
     for (var k in values) {
-        // draw parent label and recurse
-        if (typeof values[k] === 'object') {
-            // Draw parent label, and indent
-            this.ctx.fillStyle = this.labelStyle;
-            this.ctx.fillText(k, x, y);
+        y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
 
-            // Draw children
-            this.drawLegend(values[k], colorIndex, ++yIndex, indent + this.legendBoxSize);
-        }
-        // draw child label
-        else {
+        // Draw parent label
+        this.ctx.fillStyle = this.labelStyle;
+        this.ctx.fillText(k, this.padding, y);
+
+        ++yIndex
+
+        // Draw children
+        for (var c in values[k]) {
+            y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
+
             this.ctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
-            this.ctx.fillRect(x, y, this.legendBoxSize, this.legendBoxSize);
+            this.ctx.fillRect(indent + this.padding, y, this.legendBoxSize, this.legendBoxSize);
 
             this.ctx.fillStyle = this.labelStyle;
-            this.ctx.fillText(values[k].toFixed(2) + 'ms - ' + k, x + this.legendBoxSize + this.padding, y + this.legendBoxSize);
+            this.ctx.fillText(values[k][c].toFixed(2) + 'ms - ' + k, indent + this.padding + this.legendBoxSize + this.padding, y + this.legendBoxSize);
 
             ++yIndex;
         }
     }
 };
 
-Graph.prototype.drawData = function (values, colorIndex) {
-    colorIndex = colorIndex || 0;
-
+Graph.prototype.drawData = function (values) {
     var x = this.dataCanvas.width - this.dataLineWidth,
-        y = this.dataCanvas.height,
-        step = 0;
+        y = this.dataCanvas.height;
 
     // clear the buffer
     this.bctx.clearRect(0, 0, this.dataCanvasBuffer.width, this.dataCanvasBuffer.height);
@@ -133,30 +129,27 @@ Graph.prototype.drawData = function (values, colorIndex) {
     this.dctx.drawImage(this.dataCanvasBuffer, 0, 0);
 
     // draws the data values to the new line of the data canvas
-    this._drawDataValues(values, colorIndex);
+
+    // draw the new data points
+    var colorIndex = 0,
+        step = 0;
+
+    for (var k in values) {
+        for (var c in values[k]) {
+            this.dctx.beginPath();
+            this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length]
+            this.dctx.lineWidth = this.dataLineWidth;
+
+            step = ((values[k][c] / this.max) * this.dataCanvas.height);
+            step = step < 0 ? 0 : step;
+
+            this.dctx.moveTo(x, y);
+            this.dctx.lineTo(x, y-=step);
+
+            this.dctx.stroke();
+        }
+    }
 
     // draw the data canvas to the main rendered canvas
     this.ctx.drawImage(this.dataCanvas, this.legendWidth, 0);
-};
-
-Graph.prototype._drawDataValues = function (values, colorIndex) {
-    // draw the new data point
-    for (var k in values) {
-        if (typeof values[k] === 'object') {
-            this._drawDataValues(values[k], colorIndex);
-            continue;
-        }
-
-        this.dctx.beginPath();
-        this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length]
-        this.dctx.lineWidth = this.dataLineWidth;
-
-        step = ((values[k] / this.max) * this.dataCanvas.height);
-        step = step < 0 ? 0 : step;
-
-        this.dctx.moveTo(x, y);
-        this.dctx.lineTo(x, y-=step);
-
-        this.dctx.stroke();
-    }
 };
