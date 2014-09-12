@@ -25,6 +25,18 @@ var ui = {
         dom.className = classes.join(' ').trim();
     },
 
+    hasClass: function(dom, cls) {
+        return dom.className.split(' ').indexOf(cls) !== -1;
+    },
+
+    toggleClass: function(dom, cls) {
+        if (ui.hasClass(dom, cls)) {
+            ui.removeClass(dom, cls);
+        } else {
+            ui.addClass(dom, cls);
+        }
+    },
+
     setText: function(dom, txt) {
         dom.textContent = txt;
     },
