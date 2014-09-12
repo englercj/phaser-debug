@@ -34,5 +34,8 @@
       "transform-options": {
           "node-lessify": "textMode"
       }
+  },
+  "engine": {
+    "phaser": "^2.1.0"
   }
 }

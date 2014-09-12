@@ -6,7 +6,7 @@ var gulp = require('gulp'),
     browserify = require('browserify'),
 
     index = './src/index.js',
-    outdir = './dist',
+    outdir = './build',
     bundle = 'Phaser.Plugin.Debug',
     outfile = 'phaser-debug.js';
 
