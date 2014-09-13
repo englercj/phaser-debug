@@ -1,6 +1,7 @@
 var ui = require('./util/ui'),
     css = require('./styles/main.less'),
-    PerformancePanel = require('./panels/Performance');
+    PerformancePanel = require('./panels/Performance'),
+    ScenePanel = require('./panels/Scene');
 
 /**
  * @class Phaser.Plugin.Debug
@@ -16,7 +17,8 @@ function Debug(game, parent) {
     Phaser.Plugin.call(this, game, parent);
 
     this.panels = {
-        performance: null
+        performance: null,
+        scene: null
     };
 
     this.tickTimings = {
@@ -65,7 +67,8 @@ function Debug(game, parent) {
     this._stats = {
         ms: null,
         fps: null,
-        dpf: null
+        dpf: null,
+        ent: null
     };
 };
 
@@ -78,6 +81,7 @@ module.exports = Debug;
 Debug.prototype.init = function () {
     // create the panels
     this.panels.performance = new PerformancePanel(this.game, this);
+    this.panels.scene = new ScenePanel(this.game, this);
 
     // add elements to the page
     ui.addCss(css);
@@ -122,9 +126,9 @@ Debug.prototype.postUpdate = function () {
     fps = fps > 60 ? 60 : fps;
 
     // update stats indicators
-    ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? '(N/A)' : this._padString(dpf, 3));
-    ui.setText(this._stats.ms.firstElementChild, this._padString(this.tickTimings.ms.toFixed(0), 4));
-    ui.setText(this._stats.fps.firstElementChild, this._padString(fps.toFixed(0), 2));
+    ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? '(N/A)' : dpf, 3);
+    ui.setText(this._stats.ms.firstElementChild, this.tickTimings.ms.toFixed(0), 4);
+    ui.setText(this._stats.fps.firstElementChild, fps.toFixed(0), 2);
 };
 
 /**
@@ -172,16 +176,6 @@ Debug.prototype._wrap = function (obj, component, method, timingStat) {
             };
         }
     })(this, component, method, timingStat, obj[component][method]);
-};
-
-Debug.prototype._padString = function (str, to, pad) {
-    if (pad === undefined) { pad = '0'; }
-
-    while(str.length < to) {
-        str = pad + str;
-    }
-
-    return str;
 };
 
 Debug.prototype._bindEvents = function () {
@@ -234,7 +228,7 @@ Debug.prototype._createElement = function () {
 };
 
 Debug.prototype._createMenuHead = function () {
-    var div = document.createElement('div'),
+    var div = document.createElement('span'),
         r = this.game.renderType;
 
     ui.addClass(div, 'pdebug-head');
@@ -244,24 +238,30 @@ Debug.prototype._createMenuHead = function () {
 };
 
 Debug.prototype._createMenuStats = function () {
-    var div = document.createElement('div'),
-        fps = this._stats.fps = document.createElement('div'),
-        dpf = this._stats.dpf = document.createElement('div'),
-        ms = this._stats.ms = document.createElement('div');
+    var div = document.createElement('div');
 
     ui.addClass(div, 'pdebug-stats');
 
-    ui.addClass(dpf, 'pdebug-stats-item dpf');
-    ui.setHtml(dpf, '<span>0</span> draws per-frame');
-    div.appendChild(dpf);
+    this._stats.ms = document.createElement('span');
+    this._stats.fps = document.createElement('span');
+    this._stats.dpf = document.createElement('span');
+    // this._stats.ent = document.createElement('span');
 
-    ui.addClass(ms, 'pdebug-stats-item ms');
-    ui.setHtml(ms, '<span>0</span> ms tick');
-    div.appendChild(ms);
+    ui.addClass(this._stats.ms, 'pdebug-stats-item ms');
+    ui.setHtml(this._stats.ms, '<span>0</span> ms');
+    div.appendChild(this._stats.ms);
 
-    ui.addClass(fps, 'pdebug-stats-item fps');
-    ui.setHtml(fps, '<span>0</span> fps');
-    div.appendChild(fps);
+    ui.addClass(this._stats.fps, 'pdebug-stats-item fps');
+    ui.setHtml(this._stats.fps, '<span>0</span> fps');
+    div.appendChild(this._stats.fps);
+
+    ui.addClass(this._stats.dpf, 'pdebug-stats-item dpf');
+    ui.setHtml(this._stats.dpf, '<span>0</span> draws');
+    div.appendChild(this._stats.dpf);
+
+    // ui.addClass(this._stats.ent, 'pdebug-stats-item ent');
+    // ui.setHtml(this._stats.ent, '<span>0</span> entities');
+    // div.appendChild(this._stats.ent);
 
     return div;
 };

@@ -18,3 +18,13 @@ After adding the script to the page you can activate it by enabling the plugin:
 ```js
 game.add.plugin(Phaser.Plugin.Debug);
 ```
+
+## Browser Support
+
+Currently this module supports the following browsers:
+
+ - Desktop
+  * Firefox 30+
+  * Chrome 27+
+  * Safari 5.1+
+  * Opera 23+

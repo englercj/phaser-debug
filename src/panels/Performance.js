@@ -30,11 +30,11 @@ Performance.prototype.constructor = Performance;
 module.exports = Performance;
 
 Performance.prototype.createPanelElement = function () {
-    var div = Panel.prototype.createPanelElement.call(this);
+    var elm = Panel.prototype.createPanelElement.call(this);
 
-    this.graph = new Graph(div, window.innerWidth - 20, 250 - 5, this.colorPalettes._default);
+    this.graph = new Graph(elm, window.innerWidth - 20, 256, this.colorPalettes._default);
 
-    return div;
+    return elm;
 };
 
 Performance.prototype.update = function () {

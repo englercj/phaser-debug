@@ -1,3 +1,15 @@
+@background: #333;
+@foreground: #aaa;
+@accent: #00bf00;
+
+@activeTabForeground: @accent;
+@activeTabBackground: #111;
+
+@seperatorWidth: 1px;
+@separatorColor: lighten(@background, 20%);
+
+@accentHeight: 3px;
+
 @bar_height: 32px;
 @panel_height: 265px;
 
@@ -5,39 +17,51 @@
 
 //container
 .pdebug {
+    font-size: 14px;
     position: fixed;
     bottom: 0;
     width: 100%;
-    .theme_container();
+
+    color: @foreground;
+    background: @background;
+    border-top: @accentHeight solid @accent;
 
     //menu bar
     .pdebug-menu {
         height: @bar_height;
+        padding: 0 15px;
 
-        .theme_bar();
+        text-shadow: 1px 1px 0 #111;
+
+        background: @background;
+
+        span {
+            display: inline-block;
+            height: @bar_height;
+            line-height: @bar_height;
+        }
 
         //head of the menu bar
         .pdebug-head {
-            float: left;
-            padding: 0 @padding;
-            height: @bar_height;
-            line-height: @bar_height;
-            .border_menu_seperator();
+            padding-right: 25px;
+            border-right: @seperatorWidth solid @separatorColor;
         }
 
         //main bar stats
         .pdebug-stats {
             float:right;
             padding: 0 0 0 @padding;
-            height: @bar_height;
-            line-height: @bar_height;
 
             //an item on the stats bar
             .pdebug-stats-item {
-                float: left;
-                padding: 0 @padding;
+                display: inline-block;
+                width: 100px;
+
                 text-align: right;
-                .border_menu_seperator();
+
+                & > span {
+                    color: #fff;
+                }
 
                 //fps stat item
                 &.fps {}
@@ -55,15 +79,17 @@
 
         //menu items (to switch between panels)
         .pdebug-menu-item {
-            float: left;
+            color: #fff;
+
             padding: 0 @padding;
             height: @bar_height;
             line-height: @bar_height;
             cursor: pointer;
-            .border_menu_seperator();
+            border-right: @seperatorWidth solid @separatorColor;
 
             &.active {
-                .theme_item_active();
+                color: @activeTabForeground;
+                background: @activeTabBackground;
             }
         }
     }
@@ -74,49 +100,67 @@
         height: @panel_height;
         overflow: auto;
 
+        font-size: 12px;
+
+        background: @activeTabBackground;
+
         //the performance panel
         &.performance {}
 
         //the scene tree panel
-        &.scene {}
+        &.scene {
+            & > ul {
+                float: left;
+                height: 100%;
 
-        /*ul > li {
-            list-style: none;
+                min-width: 175px;
+                max-width: 500px;
 
-            cursor: pointer;
+                resize: horizontal;
+                overflow: auto;
+
+                padding: 0;
+                margin: 0;
+
+                li {
+                    list-style: none;
+
+                    cursor: pointer;
+
+                    &.expanded > ul {
+                        display: block;
+                    }
+
+                    &.expanded::before {
+                        margin: 0 4px 0 -4px;
+
+                        border-top: 6px solid rgba(255, 255, 255, 0.3);
+                        border-left: 6px solid transparent;
+                        border-right: 6px solid transparent;
+                        border-bottom: none;
+                    }
+
+                    &::before {
+                        content: '';
+
+                        display: inline-block;
+
+                        width: 0;
+                        height: 0;
+
+                        margin: 0 6px 0 0;
+
+                        border-top: 6px solid transparent;
+                        border-bottom: 6px solid transparent;
+                        border-right: none;
+                        border-left: 6px solid rgba(255, 255, 255, 0.3);
+                    }
+
+                    & > ul {
+                        display: none;
+                    }
+                }
+            }
         }
-
-        ul > li::before {
-            content: '';
-
-            display: inline-block;
-
-            width: 0;
-            height: 0;
-
-            margin: 0 6px 0 0;
-
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
-            border-right: none;
-            border-left: 6px solid rgba(0, 0, 0, 0.3);
-        }
-
-        ul > li > ul {
-            display: none;
-        }
-
-        ul > li.expanded > ul {
-            display: block;
-        }
-
-        ul > li.expanded::before {
-            margin: 0 4px 0 -4px;
-
-            border-top: 6px solid rgba(0, 0, 0, 0.3);
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-bottom: none;
-        }*/
     }
 }

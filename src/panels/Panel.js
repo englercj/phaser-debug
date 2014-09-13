@@ -17,23 +17,23 @@ module.exports = Panel;
 
 //builds the html for a panel
 Panel.prototype.createPanelElement = function () {
-    var div = this._panel = document.createElement('div');
-    ui.addClass(div, 'pdebug-panel ' + this.name);
+    var elm = this._panel = document.createElement('div');
+    ui.addClass(elm, 'pdebug-panel ' + this.name);
 
-    return div;
+    return elm;
 };
 
 //builds the html for this panels menu item
 Panel.prototype.createMenuElement = function () {
-    var div = this._menuItem = document.createElement('div');
-    ui.addClass(div, 'pdebug-menu-item ' + this.name);
-    ui.setText(div, this.title);
+    var elm = this._menuItem = document.createElement('span');
+    ui.addClass(elm, 'pdebug-menu-item ' + this.name);
+    ui.setText(elm, this.title);
 
-    return div;
+    return elm;
 };
 
 Panel.prototype.toggle = function () {
-    if (this._panel.style.display === 'block') {
+    if (this.active) {
         this.hide();
         this.active = false;
     } else {

@@ -16,7 +16,7 @@ function Graph(container, width, height, colors, options) {
     this.padding = options.labelPadding || 5;
 
     this.dataLineWidth = options.lineWidth || 1;
-    this.legendWidth = 115;
+    this.legendWidth = 230;
     this.legendBoxSize = 10;
     this.legendIndent = 10;
 
@@ -71,35 +71,41 @@ Graph.prototype.drawBg = function () {
     this.ctx.stroke();
 
     //draw marker line text
-    this.ctx.fillText(((this.maxValue / 3)*2).toFixed(this.labelPrecision) + this.label, minX + this.padding, step-this.padding);
-    this.ctx.fillText((this.maxValue / 3).toFixed(this.labelPrecision) + this.label, minX + this.padding, (step*2)-this.padding);
+    this.ctx.fillText(((this.maxValue / 3)*2).toFixed(this.labelPrecision) + this.label, this.legendWidth + this.padding, step-this.padding);
+    this.ctx.fillText((this.maxValue / 3).toFixed(this.labelPrecision) + this.label, this.legendWidth + this.padding, (step*2)-this.padding);
 };
 
 Graph.prototype.drawLegend = function (values) {
     var colorIndex = 0,
         yIndex = 0,
+        x = this.padding,
         y = 0;
 
     for (var k in values) {
-        y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
+        y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1)) + this.padding;
 
         // Draw parent label
         this.ctx.fillStyle = this.labelStyle;
-        this.ctx.fillText(k, this.padding, y);
+        this.ctx.fillText(k, x, y);
 
         ++yIndex
 
         // Draw children
         for (var c in values[k]) {
-            y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1));
+            y = (yIndex * this.legendBoxSize) + (this.padding * yIndex);
 
             this.ctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
-            this.ctx.fillRect(legendIndent + this.padding, y, this.legendBoxSize, this.legendBoxSize);
+            this.ctx.fillRect(x + this.legendIndent, y, this.legendBoxSize, this.legendBoxSize);
 
             this.ctx.fillStyle = this.labelStyle;
-            this.ctx.fillText(values[k][c].toFixed(2) + 'ms - ' + k, legendIndent + this.padding + this.legendBoxSize + this.padding, y + this.legendBoxSize);
+            this.ctx.fillText(Math.round(values[k][c]) + 'ms - ' + c, x + this.legendIndent + this.legendBoxSize + this.padding, y + this.legendBoxSize);
 
             ++yIndex;
+
+            if (yIndex > 16) {
+                x += this.legendWidth / 2;
+                yIndex = 0;
+            }
         }
     }
 };
