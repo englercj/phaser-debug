@@ -85,10 +85,13 @@
         .pdebug-menu-item {
             color: #fff;
 
+            display: inline-block;
+
+            text-decoration: none;
+
             padding: 0 @padding;
             height: @bar_height;
             line-height: @bar_height;
-            cursor: pointer;
             border-right: @seperatorWidth solid @separatorColor;
 
             &.active {
@@ -124,8 +127,6 @@
             // }
 
             > ul {
-                color: #fff;
-
                 float: left;
                 height: 100%;
 
@@ -138,16 +139,25 @@
                 padding: 0;
                 margin: 0;
 
-                .name {
-                    color: @foreground;
-                }
+                border-right: solid 1px @foreground;
+                margin-right: 10px;
 
                 li {
+                    color: #fff;
+
                     list-style: none;
                     cursor: pointer;
 
                     &.expanded > ul {
                         display: block;
+                    }
+
+                    &.selected {
+                        color: @accent;
+                    }
+
+                    .name {
+                        color: @foreground;
                     }
 
                     &::before {

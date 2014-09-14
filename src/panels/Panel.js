@@ -25,7 +25,10 @@ Panel.prototype.createPanelElement = function () {
 
 //builds the html for this panels menu item
 Panel.prototype.createMenuElement = function () {
-    var elm = this._menuItem = document.createElement('span');
+    var elm = this._menuItem = document.createElement('a');
+
+    elm.href = '#' + this.name;
+
     ui.addClass(elm, 'pdebug-menu-item ' + this.name);
     ui.setText(elm, this.title);
 

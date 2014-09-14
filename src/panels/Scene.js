@@ -96,6 +96,9 @@ Scene.prototype._onLiClick = function (e) {
 };
 
 Scene.prototype._onRefreshClick = function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
     this.rebuildTree();
 };
 
