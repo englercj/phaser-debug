@@ -2,10 +2,29 @@
 var ui = {
     delegate: function(dom, evt, selector, fn) {
         dom.addEventListener(evt, function(e) {
-            if(e.target && e.target.matches(selector)) {
-                if(fn) fn(e);
+            window.target = e.target;
+            if (e.target && e.target.matches(selector)) {
+                e.delegateTarget = e.target;
+                if (fn) fn(e);
+            }
+            else if (e.target.parentElement && e.target.parentElement.matches(selector)) {
+                e.delegateTarget = e.target.parentElement;
+                if (fn) fn(e);
             }
         });
+    },
+
+    on: function(dom, evt, delegate, fn) {
+        if (typeof delegate === 'function') {
+            fn = delegate;
+            delegate = null;
+        }
+
+        if (delegate) {
+            return ui.delegate(dom, evt, delegate, fn);
+        }
+
+        dom.addEventListener(evt, fn);
     },
 
     removeClass: function(dom, cls) {

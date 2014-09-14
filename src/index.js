@@ -182,7 +182,7 @@ Debug.prototype._bindEvents = function () {
     var activePanel,
         self = this;
 
-    ui.delegate(this._bar, 'click', '.pdebug-menu-item', function(e) {
+    ui.on(this._bar, 'click', '.pdebug-menu-item', function(e) {
         var panel = self.panels[e.target.className.replace(/pdebug-menu-item|active/g, '').trim()];
 
         if(!panel) {

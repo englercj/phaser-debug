@@ -8,6 +8,11 @@ function Scene(game, parent) {
     this.title = 'Scene';
 
     this._tree = null;
+
+    this.tree = null;
+    this.details = null;
+    this.refresh = null;
+    this.selected = null;
 }
 
 Scene.prototype = Object.create(Panel.prototype);
@@ -18,29 +23,51 @@ module.exports = Scene;
 Scene.prototype.createPanelElement = function () {
     Panel.prototype.createPanelElement.call(this);
 
-    this._tree = document.createElement('ul');
+    this.tree = document.createElement('ul');
+    this.details = document.createElement('div');
+    this.refresh = document.createElement('a');
 
-    ui.delegate(this._tree, 'click', 'li', this._onLiClick.bind(this));
+    this.refresh.href = '#';
+    ui.setText(this.refresh, 'refresh');
+
+    ui.addClass(this.details, 'details');
+    ui.addClass(this.refresh, 'refresh');
+
+    ui.on(this.tree, 'click', 'li', this._onLiClick.bind(this));
+    ui.on(this.refresh, 'click', this._onRefreshClick.bind(this));
 
     this.rebuildTree();
 
-    this._panel.appendChild(this._tree);
+    this.details.appendChild(this.refresh);
+
+    this._panel.appendChild(this.tree);
+    this._panel.appendChild(this.details);
 
     return this._panel;
 };
 
 Scene.prototype.rebuildTree = function () {
-    ui.empty(this._tree);
+    ui.empty(this.tree);
 
-    this._addNode(this._tree, this.game.stage);
+    this.selected = this._addNode(this.tree, this.game.stage);
+
+    ui.addClass(this.selected, 'expanded selected');
 };
 
 Scene.prototype._addNode = function (parent, node) {
     var li = document.createElement('li');
 
-    ui.setText(li, this._typeToString(node.type) + (node.name ? '(' + node.name + ')' : ''));
+    li.appendChild(document.createTextNode(this._typeToString(node)));
 
-    if (node.children) {
+    if (node.name) {
+        var name = document.createElement('span');
+        ui.addClass(name, 'name');
+        ui.setText(name, ' (' + node.name + ')');
+
+        li.appendChild(name);
+    }
+
+    if (node.children && node.children.length) {
         ui.addClass(li, 'has-children');
 
         var childs = document.createElement('ul');
@@ -53,80 +80,112 @@ Scene.prototype._addNode = function (parent, node) {
     }
 
     parent.appendChild(li);
+
+    return li;
 };
 
 Scene.prototype._onLiClick = function (e) {
     e.stopPropagation();
 
-    ui.toggleClass(e.target, 'expanded');
+    ui.removeClass(this.selected, 'selected');
+
+    this.selected = e.delegateTarget;
+
+    ui.addClass(this.selected, 'selected');
+    ui.toggleClass(this.selected, 'expanded');
 };
 
-Scene.prototype._typeToString = function (type) {
-    switch(type) {
-        case Phaser.SPRITE:
-            return 'Sprite';
+Scene.prototype._onRefreshClick = function (e) {
+    this.rebuildTree();
+};
 
-        case Phaser.BUTTON:
-            return 'Button';
+Scene.prototype._typeToString = function (node) {
+    // If no phaser type defined, try to guess
+    if (node.type === undefined) {
+        if (node instanceof PIXI.Stage) {
+            return 'PIXI Stage';
+        }
+        else if (node instanceof PIXI.Sprite) {
+            return 'PIXI Sprite';
+        }
+        else if (node instanceof PIXI.DisplayObjectContainer) {
+            return 'PIXI DisplayObjectContainer';
+        }
+        else if (node instanceof PIXI.DisplayObject) {
+            return 'PIXI DisplayObject';
+        }
+        else {
+            return 'Unknown';
+        }
+    }
+    // return a string for the phaser type
+    else {
+        switch(node.type) {
+            case Phaser.SPRITE:
+                return 'Sprite';
 
-        case Phaser.IMAGE:
-            return 'Image';
+            case Phaser.BUTTON:
+                return 'Button';
 
-        case Phaser.GRAPHICS:
-            return 'Graphics';
+            case Phaser.IMAGE:
+                return 'Image';
 
-        case Phaser.TEXT:
-            return 'Text';
+            case Phaser.GRAPHICS:
+                return 'Graphics';
 
-        case Phaser.TILESPRITE:
-            return 'Tile Sprite';
+            case Phaser.TEXT:
+                return 'Text';
 
-        case Phaser.BITMAPTEXT:
-            return 'Bitmap Text';
+            case Phaser.TILESPRITE:
+                return 'Tile Sprite';
 
-        case Phaser.GROUP:
-            return 'Group';
+            case Phaser.BITMAPTEXT:
+                return 'Bitmap Text';
 
-        case Phaser.RENDERTEXTURE:
-            return 'Render Texture';
+            case Phaser.GROUP:
+                return 'Group';
 
-        case Phaser.TILEMAP:
-            return 'Tilemap';
+            case Phaser.RENDERTEXTURE:
+                return 'Render Texture';
 
-        case Phaser.TILEMAPLAYER:
-            return 'Tilemap Layer';
+            case Phaser.TILEMAP:
+                return 'Tilemap';
 
-        case Phaser.EMITTER:
-            return 'Emitter';
+            case Phaser.TILEMAPLAYER:
+                return 'Tilemap Layer';
 
-        case Phaser.POLYGON:
-            return 'Polygon';
+            case Phaser.EMITTER:
+                return 'Emitter';
 
-        case Phaser.BITMAPDATA:
-            return 'Bitmap Data';
+            case Phaser.POLYGON:
+                return 'Polygon';
 
-        case Phaser.CANVAS_FILTER:
-            return 'Canvas Filter';
+            case Phaser.BITMAPDATA:
+                return 'Bitmap Data';
 
-        case Phaser.WEBGL_FILTER:
-            return 'WebGL Filter';
+            case Phaser.CANVAS_FILTER:
+                return 'Canvas Filter';
 
-        case Phaser.ELLIPSE:
-            return 'Ellipse';
+            case Phaser.WEBGL_FILTER:
+                return 'WebGL Filter';
 
-        case Phaser.SPRITEBATCH:
-            return 'Sprite Batch';
+            case Phaser.ELLIPSE:
+                return 'Ellipse';
 
-        case Phaser.RETROFONT:
-            return 'Retro Font';
+            case Phaser.SPRITEBATCH:
+                return 'Sprite Batch';
 
-        case Phaser.POINTER:
-            return 'Pointer';
+            case Phaser.RETROFONT:
+                return 'Retro Font';
 
-        case Phaser.ROPE:
-            return 'Rope';
+            case Phaser.POINTER:
+                return 'Pointer';
 
-        default:
-            return '';
+            case Phaser.ROPE:
+                return 'Rope';
+
+            default:
+                return 'Unknown';
+        }
     }
 };
