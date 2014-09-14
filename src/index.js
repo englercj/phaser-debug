@@ -70,6 +70,8 @@ function Debug(game, parent) {
         dpf: null,
         ent: null
     };
+
+    this.timer = (window.performance ? window.performance : Date);
 };
 
 //  Extends the Phaser.Plugin template, setting up values we need
@@ -127,8 +129,8 @@ Debug.prototype.postUpdate = function () {
 
     // update stats indicators
     ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? '(N/A)' : dpf, 3);
-    ui.setText(this._stats.ms.firstElementChild, this.tickTimings.ms.toFixed(0), 4);
-    ui.setText(this._stats.fps.firstElementChild, fps.toFixed(0), 2);
+    ui.setText(this._stats.ms.firstElementChild, Math.round(this.tickTimings.ms), 4);
+    ui.setText(this._stats.fps.firstElementChild, Math.round(fps), 2);
 };
 
 /**
@@ -152,25 +154,25 @@ Debug.prototype._wrap = function (obj, component, method, timingStat) {
         // special tick capture for game update
         if (name === 'game' && method === 'update' && !stat) {
             return function () {
-                start = Date.now();
+                start = self.timer.now();
 
                 self.tickTimings.lastStart = self.tickTimings.start;
                 self.tickTimings.start = start;
 
                 fn.apply(this, arguments);
 
-                end = Date.now();
+                end = self.timer.now();
 
                 self.tickTimings.ms = end - start;
             };
         }
         else {
             return function () {
-                start = Date.now();
+                start = self.timer.now();
 
                 fn.apply(this, arguments);
 
-                end = Date.now();
+                end = self.timer.now();
 
                 self.timings[method][stat] = end - start;
             };

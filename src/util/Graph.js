@@ -1,3 +1,5 @@
+// TODO: Move the legend into DOM?
+
 function Graph(container, width, height, colors, options) {
     options = options || {};
 
@@ -8,8 +10,6 @@ function Graph(container, width, height, colors, options) {
 
     this.ctx = this.canvas.getContext('2d');
 
-    this.label = 'ms';
-    this.labelPrecision = 0;
     this.labelStyle = 'rgba(200, 200, 200, 0.6)';
 
     this.maxValue = options.maxValue || 50;
@@ -18,7 +18,7 @@ function Graph(container, width, height, colors, options) {
     this.dataLineWidth = options.lineWidth || 1;
     this.legendWidth = 230;
     this.legendBoxSize = 10;
-    this.legendIndent = 10;
+    this.legendIndent = 5;
 
     this.colors = colors;
 
@@ -48,31 +48,33 @@ Graph.prototype.addData = function (values) {
 };
 
 Graph.prototype.drawBg = function () {
-    var step = this.canvas.height / 3;
+    var fps60 = Math.floor(this.canvas.height - (this.canvas.height * (16 / this.maxValue))) + 0.5,
+        fps30 = Math.floor(this.canvas.height - (this.canvas.height * (33 / this.maxValue))) + 0.5;
 
     this.ctx.strokeStyle = this.ctx.fillStyle = this.labelStyle;
+    this.ctx.lineWidth = 1;
 
     //draw top marker line
     this.ctx.beginPath();
-    this.ctx.moveTo(this.legendWidth, step);
-    this.ctx.lineTo(this.canvas.width, step);
+    this.ctx.moveTo(this.legendWidth, fps60);
+    this.ctx.lineTo(this.canvas.width, fps60);
     this.ctx.stroke();
+
+    this.ctx.fillText('16ms (60 fps)', this.legendWidth + this.padding, fps60 - this.padding);
 
     //draw the second marker line
     this.ctx.beginPath();
-    this.ctx.moveTo(this.legendWidth, step*2);
-    this.ctx.lineTo(this.canvas.width, step*2);
+    this.ctx.moveTo(this.legendWidth, fps30);
+    this.ctx.lineTo(this.canvas.width, fps30);
     this.ctx.stroke();
+
+    this.ctx.fillText('33ms (30 fps)', this.legendWidth + this.padding, fps30 - this.padding);
 
     //draw baseline marker
     this.ctx.beginPath();
-    this.ctx.moveTo(this.legendWidth, this.canvas.height);
-    this.ctx.lineTo(this.canvas.width, this.canvas.height);
+    this.ctx.moveTo(this.legendWidth, this.canvas.height - 0.5);
+    this.ctx.lineTo(this.canvas.width, this.canvas.height - 0.5);
     this.ctx.stroke();
-
-    //draw marker line text
-    this.ctx.fillText(((this.maxValue / 3)*2).toFixed(this.labelPrecision) + this.label, this.legendWidth + this.padding, step-this.padding);
-    this.ctx.fillText((this.maxValue / 3).toFixed(this.labelPrecision) + this.label, this.legendWidth + this.padding, (step*2)-this.padding);
 };
 
 Graph.prototype.drawLegend = function (values) {
@@ -111,8 +113,8 @@ Graph.prototype.drawLegend = function (values) {
 };
 
 Graph.prototype.drawData = function (values) {
-    var x = this.dataCanvas.width - this.dataLineWidth,
-        y = this.dataCanvas.height;
+    var x = this.dataCanvas.width - this.dataLineWidth + 0.5,
+        y = this.dataCanvas.height - 0.5;
 
     // clear the buffer
     this.bctx.clearRect(0, 0, this.dataCanvasBuffer.width, this.dataCanvasBuffer.height);
