@@ -2,7 +2,10 @@
 
 Simple debug module for the [Phaser][0] game framework.
 
+![Screenshot][1]
+
 [0]: https://github.com/photonstorm/phaser
+[1]: https://dl.dropboxusercontent.com/u/1810371/pics/phaser-debug.png
 
 ## Usage
 
