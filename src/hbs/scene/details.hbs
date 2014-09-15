@@ -8,14 +8,20 @@
 <strong>{{typeString}}</strong>
 <br/>
 
-<label>Children:</label>
-<strong>{{children.length}}</strong>
+<label>Position:</label>
+<strong>{{position.x}}</strong> x <strong>{{position.y}}</strong>
 <br/>
+
+{{#if children}}
+    <label>Children:</label>
+    <strong>{{children.length}}</strong>
+    <br/>
+{{/if}}
 
 {{#if texture}}
     <label>Texture:</label>
-    {{#if text.baseTexture.source.src}}
-        <strong>{{texture.baseTexture.source.src}}</strong>
+    {{#if texture.baseTexture.source.src}}
+        <a href="{{texture.baseTexture.source.src}}">{{texture.baseTexture.source.src}}</a>
     {{else}}
         <strong>{{texture.baseTexture.source}}</strong>
     {{/if}}
