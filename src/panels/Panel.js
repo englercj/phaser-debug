@@ -38,17 +38,17 @@ Panel.prototype.createMenuElement = function () {
 Panel.prototype.toggle = function () {
     if (this.active) {
         this.hide();
-        this.active = false;
     } else {
         this.show();
-        this.active = true;
     }
 };
 
 Panel.prototype.show = function () {
+    this.active = true;
     ui.setStyle(this._panel, 'display', 'block');
 };
 
 Panel.prototype.hide = function () {
+    this.active = false;
     ui.setStyle(this._panel, 'display', 'none');
 };

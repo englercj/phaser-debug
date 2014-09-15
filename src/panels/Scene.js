@@ -18,7 +18,7 @@ function Scene(game, parent) {
     Panel.call(this, game, parent);
 
     this.name = 'scene';
-    this.title = 'Scene';
+    this.title = 'Scene Tree';
 
     this._tree = null;
 
@@ -53,8 +53,6 @@ Scene.prototype.createPanelElement = function () {
     //     true
     // );
 
-    this.rebuildTree();
-
     return this._panel;
 };
 
@@ -87,6 +85,12 @@ Scene.prototype.select = function (li) {
 
     this.selected = li;
     ui.addClass(this.selected, 'selected');
+};
+
+Scene.prototype.show = function () {
+    this.rebuildTree();
+
+    Panel.prototype.show.call(this);
 };
 
 Scene.prototype._onLiClick = function (e) {
