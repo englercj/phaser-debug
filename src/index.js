@@ -187,8 +187,6 @@ Debug.prototype._bindEvents = function () {
     ui.on(this._bar, 'click', '.pdebug-menu-item', function(e) {
         e.preventDefault();
 
-        console.log(e.target.getAttribute('href'));
-
         var panel = self.panels[e.target.getAttribute('href').replace('#', '')];
 
         if(!panel) {

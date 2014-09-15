@@ -1,0 +1,23 @@
+<br/><br/>
+
+<label>Name:</label>
+<strong>{{name}}</strong>
+<br/>
+
+<label>Type:</label>
+<strong>{{typeString}}</strong>
+<br/>
+
+<label>Children:</label>
+<strong>{{children.length}}</strong>
+<br/>
+
+{{#if texture}}
+    <label>Texture:</label>
+    {{#if text.baseTexture.source.src}}
+        <strong>{{texture.baseTexture.source.src}}</strong>
+    {{else}}
+        <strong>{{texture.baseTexture.source}}</strong>
+    {{/if}}
+    <br/>
+{{/if}}

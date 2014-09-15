@@ -29,6 +29,7 @@ function createBundler(args) {
     var bundler = browserify(index, args);
 
     bundler.transform('node-lessify');
+    bundler.transform('hbsfy');
 
     return bundler;
 }

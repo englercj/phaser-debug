@@ -1,6 +1,7 @@
 @background: #333;
 @foreground: #aaa;
 @accent: #00bf00;
+@strong: #fff;
 
 @activeTabForeground: @accent;
 @activeTabBackground: #111;
@@ -28,6 +29,20 @@
 
     a {
         color: @accent;
+    }
+
+    label {
+        display: inline-block;
+        width: 50px;
+    }
+
+    strong {
+        font-weight: normal;
+        color: @strong;
+    }
+
+    .weak {
+        color: @foreground;
     }
 
     //menu bar
@@ -64,7 +79,7 @@
                 text-align: right;
 
                 & > span {
-                    color: #fff;
+                    color: @strong;
                 }
 
                 //fps stat item
@@ -83,7 +98,7 @@
 
         //menu items (to switch between panels)
         .pdebug-menu-item {
-            color: #fff;
+            color: @strong;
 
             display: inline-block;
 
@@ -116,17 +131,7 @@
 
         //the scene tree panel
         &.scene {
-            .details {
-                float: left;
-                height: 100%;
-            }
-
-            // .refresh {
-            //     position: absolute;
-            //     left: 200px;
-            // }
-
-            > ul {
+            .sidebar {
                 float: left;
                 height: 100%;
 
@@ -135,7 +140,14 @@
 
                 resize: horizontal;
                 overflow: auto;
+            }
 
+            .details {
+                float: left;
+                height: 100%;
+            }
+
+            > ul {
                 padding: 0;
                 margin: 0;
 
@@ -143,7 +155,7 @@
                 margin-right: 10px;
 
                 li {
-                    color: #fff;
+                    color: @strong;
 
                     list-style: none;
                     cursor: pointer;
@@ -154,10 +166,6 @@
 
                     &.selected {
                         color: @accent;
-                    }
-
-                    .name {
-                        color: @foreground;
                     }
 
                     &::before {

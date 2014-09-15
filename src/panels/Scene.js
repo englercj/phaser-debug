@@ -1,5 +1,15 @@
 var Panel = require('./Panel'),
-    ui = require('../util/ui');
+    ui = require('../util/ui'),
+    Handlebars = require('hbsfy/runtime');
+
+//require templates
+var panelHtml = require('../hbs/scene/panel.hbs'),
+    detailsHtml = require('../hbs/scene/details.hbs'),
+    treeHtml = require('../hbs/scene/tree.hbs');
+
+Handlebars.registerPartial('sceneDetails', detailsHtml);
+Handlebars.registerPartial('sceneTree', treeHtml);
+Handlebars.registerHelper('typeString', typeToString);
 
 function Scene(game, parent) {
     Panel.call(this, game, parent);
@@ -12,6 +22,7 @@ function Scene(game, parent) {
     this.tree = null;
     this.details = null;
     this.refresh = null;
+
     this.selected = null;
 }
 
@@ -23,25 +34,17 @@ module.exports = Scene;
 Scene.prototype.createPanelElement = function () {
     Panel.prototype.createPanelElement.call(this);
 
-    this.tree = document.createElement('ul');
-    this.details = document.createElement('div');
-    this.refresh = document.createElement('a');
+    this._panel.innerHTML = panelHtml(this.game.stage);
 
-    this.refresh.href = '#';
-    ui.setText(this.refresh, 'refresh');
+    this.tree = this._panel.querySelector('.sidebar');
+    this.details = this._panel.querySelector('.details');
+    this.refresh = this.details.querySelector('.refresh');
 
-    ui.addClass(this.details, 'details');
-    ui.addClass(this.refresh, 'refresh');
+    this.selected = this.tree.querySelector('li:first-child');
+    ui.addClass(this.selected, 'selected expanded');
 
     ui.on(this.tree, 'click', 'li', this._onLiClick.bind(this));
     ui.on(this.refresh, 'click', this._onRefreshClick.bind(this));
-
-    this.rebuildTree();
-
-    this.details.appendChild(this.refresh);
-
-    this._panel.appendChild(this.tree);
-    this._panel.appendChild(this.details);
 
     return this._panel;
 };
@@ -49,50 +52,32 @@ Scene.prototype.createPanelElement = function () {
 Scene.prototype.rebuildTree = function () {
     ui.empty(this.tree);
 
-    this.selected = this._addNode(this.tree, this.game.stage);
+    this.tree.innerHTML = treeHtml(this.game.stage);
 
-    ui.addClass(this.selected, 'expanded selected');
+    this.selected = this.tree.querySelector('li:first-child');
+    ui.addClass(this.selected, 'selected expanded');
+
+    this.reloadDetails();
 };
 
-Scene.prototype._addNode = function (parent, node) {
-    var li = document.createElement('li');
-
-    li.appendChild(document.createTextNode(this._typeToString(node)));
-
-    if (node.name) {
-        var name = document.createElement('span');
-        ui.addClass(name, 'name');
-        ui.setText(name, ' (' + node.name + ')');
-
-        li.appendChild(name);
-    }
-
-    if (node.children && node.children.length) {
-        ui.addClass(li, 'has-children');
-
-        var childs = document.createElement('ul');
-
-        for (var i = 0; i < node.children.length; ++i) {
-            this._addNode(childs, node.children[i]);
-        }
-
-        li.appendChild(childs);
-    }
-
-    parent.appendChild(li);
-
-    return li;
+Scene.prototype.reloadDetails = function () {
+    //TODO: cache objects with custom IDs to reload here?
+    // perhaps a hbs helper that will add to the cache and return the id?
 };
 
 Scene.prototype._onLiClick = function (e) {
     e.stopPropagation();
 
-    ui.removeClass(this.selected, 'selected');
+    if (this.selected) {
+        ui.removeClass(this.selected, 'selected');
+    }
 
     this.selected = e.delegateTarget;
 
     ui.addClass(this.selected, 'selected');
     ui.toggleClass(this.selected, 'expanded');
+
+    this.reloadDetails();
 };
 
 Scene.prototype._onRefreshClick = function (e) {
@@ -102,7 +87,9 @@ Scene.prototype._onRefreshClick = function (e) {
     this.rebuildTree();
 };
 
-Scene.prototype._typeToString = function (node) {
+function typeToString () {
+    var node = this;
+
     // If no phaser type defined, try to guess
     if (node.type === undefined) {
         if (node instanceof PIXI.Stage) {
