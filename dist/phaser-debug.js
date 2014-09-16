@@ -73,7 +73,7 @@ function Debug(game, parent) {
     };
 
     this.timer = (window.performance ? window.performance : Date);
-};
+}
 
 //  Extends the Phaser.Plugin template, setting up values we need
 Debug.prototype = Object.create(Phaser.Plugin.prototype);
@@ -145,8 +145,28 @@ Debug.prototype.mark = function (label) {
     }
 };
 
+Debug.prototype.destroy = function () {
+    Phaser.Plugin.prototype.destroy.call(this);
+
+    for (var p in this.panels) {
+        this.panels[p].destroy();
+    }
+
+    this.panels = null;
+    this.tickTimings = null;
+    this.timings = null;
+
+    this._container = null;
+    this._bar = null;
+    this._stats = null;
+
+    this.timer = null;
+};
+
 Debug.prototype._wrap = function (obj, component, method, timingStat) {
-    if (!obj[component] || !obj[component][method]) return;
+    if (!obj[component] || !obj[component][method]) {
+        return;
+    }
 
     obj[component][method] = (function(self, name, method, stat, fn) {
         var start = 0,
@@ -888,7 +908,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
   var stack1, lambda=this.lambda, escapeExpression=this.escapeExpression;
   return "        <a href=\""
     + escapeExpression(lambda(((stack1 = ((stack1 = ((stack1 = (depth0 != null ? depth0.texture : depth0)) != null ? stack1.baseTexture : stack1)) != null ? stack1.source : stack1)) != null ? stack1.src : stack1), depth0))
-    + "\">"
+    + "\" target=\"_blank\">"
     + escapeExpression(lambda(((stack1 = ((stack1 = ((stack1 = (depth0 != null ? depth0.texture : depth0)) != null ? stack1.baseTexture : stack1)) != null ? stack1.source : stack1)) != null ? stack1.src : stack1), depth0))
     + "</a>\n";
 },"6":function(depth0,helpers,partials,data) {
@@ -993,19 +1013,30 @@ Panel.prototype.createMenuElement = function () {
 Panel.prototype.toggle = function () {
     if (this.active) {
         this.hide();
-        this.active = false;
     } else {
         this.show();
-        this.active = true;
     }
 };
 
 Panel.prototype.show = function () {
+    this.active = true;
     ui.setStyle(this._panel, 'display', 'block');
 };
 
 Panel.prototype.hide = function () {
+    this.active = false;
     ui.setStyle(this._panel, 'display', 'none');
+};
+
+Panel.prototype.destroy = function () {
+    this.game = null;
+    this.parent = null;
+
+    this.name = null;
+    this.title = null;
+    this.active = null;
+
+    this._panel = null;
 };
 
 },{"../util/ui":18}],14:[function(require,module,exports){
@@ -1021,6 +1052,8 @@ function Performance(game, parent) {
     this.title = 'Performance';
     this.eventQueue = [];
 
+    this.graph = null;
+
     this.colorPalettes = {
         _default: [
             // Colors from: https://github.com/highslide-software/highcharts.com/blob/master/js/themes/grid.js
@@ -1028,9 +1061,9 @@ function Performance(game, parent) {
             '#24CBE5', '#64E572', '#FF9655', '#FFF263',
             '#6AF9C4',
             // Colors from: https://github.com/highslide-software/highcharts.com/blob/master/js/themes/dark-unica.js
-            "#2b908f", "#90ee7e", "#f45b5b", "#7798BF",
-            "#aaeeee", "#ff0066", "#eeaaee",
-            "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"
+            '#2b908f', '#90ee7e', '#f45b5b', '#7798BF',
+            '#aaeeee', '#ff0066', '#eeaaee',
+            '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'
         ]
     };
 }
@@ -1053,7 +1086,17 @@ Performance.prototype.update = function () {
 };
 
 Performance.prototype.mark = function (label) {
-    this.eventQueue.push(name);
+    this.eventQueue.push(label);
+};
+
+Performance.prototype.destroy = function () {
+    Panel.prototype.destroy.call(this);
+
+    this.graph.destroy();
+
+    this.eventQueue = null;
+    this.graph = null;
+    this.colorPalettes = null;
 };
 
 },{"../util/Graph":17,"./Panel":13}],15:[function(require,module,exports){
@@ -1077,7 +1120,7 @@ function Scene(game, parent) {
     Panel.call(this, game, parent);
 
     this.name = 'scene';
-    this.title = 'Scene';
+    this.title = 'Scene Tree';
 
     this._tree = null;
 
@@ -1112,8 +1155,6 @@ Scene.prototype.createPanelElement = function () {
     //     true
     // );
 
-    this.rebuildTree();
-
     return this._panel;
 };
 
@@ -1146,6 +1187,20 @@ Scene.prototype.select = function (li) {
 
     this.selected = li;
     ui.addClass(this.selected, 'selected');
+};
+
+Scene.prototype.show = function () {
+    this.rebuildTree();
+
+    Panel.prototype.show.call(this);
+};
+
+Scene.prototype.destroy = function () {
+    Panel.prototype.destroy.call(this);
+
+    this.tree = null;
+    this.details = null;
+    this.refresh = null;
 };
 
 Scene.prototype._onLiClick = function (e) {
@@ -1264,7 +1319,7 @@ function typeToString () {
                 return 'Unknown';
         }
     }
-};
+}
 
 },{"../hbs/scene/details.hbs":10,"../hbs/scene/panel.hbs":11,"../hbs/scene/tree.hbs":12,"../util/ui":18,"./Panel":13,"hbsfy/runtime":9}],16:[function(require,module,exports){
 module.exports = ".pdebug{font-size:14px;position:fixed;bottom:0;width:100%;color:#aaa;background:#333;border-top:3px solid #00bf00}.pdebug a{color:#00bf00}.pdebug label{display:inline-block;width:60px}.pdebug strong{font-weight:400;color:#fff}.pdebug .weak{color:#aaa}.pdebug .pdebug-menu{height:32px;padding:0 15px;text-shadow:1px 1px 0 #111;background:#333}.pdebug .pdebug-menu span{display:inline-block;height:32px;line-height:32px}.pdebug .pdebug-menu .pdebug-head{padding-right:25px;border-right:1px solid #666}.pdebug .pdebug-menu .pdebug-stats{float:right;padding:0 0 0 10px}.pdebug .pdebug-menu .pdebug-stats .pdebug-stats-item{display:inline-block;width:100px;text-align:right}.pdebug .pdebug-menu .pdebug-stats .pdebug-stats-item>span{color:#fff}.pdebug .pdebug-menu .pdebug-stats .pdebug-stats-item.obj{width:100px;border:0}.pdebug .pdebug-menu .pdebug-menu-item{color:#fff;display:inline-block;text-decoration:none;padding:0 10px;height:32px;line-height:32px;border-right:1px solid #666}.pdebug .pdebug-menu .pdebug-menu-item.active{color:#00bf00;background:#111}.pdebug .pdebug-panel{display:none;height:265px;overflow:auto;font-size:12px;background:#111}.pdebug .pdebug-panel.scene .sidebar{float:left;height:100%;min-width:175px;max-width:500px;resize:horizontal;overflow:auto}.pdebug .pdebug-panel.scene .details{float:left;height:100%}.pdebug .pdebug-panel.scene .refresh{position:absolute}.pdebug .pdebug-panel.scene>ul{padding:0;margin:0;border-right:solid 1px #aaa;margin-right:10px}.pdebug .pdebug-panel.scene>ul li{color:#fff;list-style:none;cursor:pointer}.pdebug .pdebug-panel.scene>ul li.expanded>ul{display:block}.pdebug .pdebug-panel.scene>ul li.selected{color:#00bf00}.pdebug .pdebug-panel.scene>ul li::before{content:\'-\';display:inline-block;width:12px;height:1px;color:#aaa}.pdebug .pdebug-panel.scene>ul li.has-children::before{content:\'\';display:inline-block;width:0;height:0;margin:0 6px 0 0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:0;border-left:6px solid rgba(255,255,255,.3)}.pdebug .pdebug-panel.scene>ul li.has-children.expanded::before{margin:0 4px 0 -4px;border-top:6px solid rgba(255,255,255,.3);border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:0}.pdebug .pdebug-panel.scene>ul li>ul{display:none;padding:0 0 0 10px}input[type=checkbox]{visibility:hidden}.checkbox{width:75px;height:26px;background:#333;position:relative;line-height:normal;-webkit-border-radius:50px;-moz-border-radius:50px;border-radius:50px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.2);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.2);-o-box-shadow:inset 0 1px 1px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.2);-ms-box-shadow:inset 0 1px 1px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.2);box-shadow:inset 0 1px 1px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.2)}.checkbox:after{content:\'OFF\';font:12px/26px Arial,sans-serif;color:#000;position:absolute;right:10px;z-index:0;font-weight:700;text-shadow:1px 1px 0 rgba(255,255,255,.15)}.checkbox:before{content:\'ON\';font:12px/26px Arial,sans-serif;color:#00bf00;position:absolute;left:10px;z-index:0;font-weight:700}.checkbox+span{position:relative;display:block;top:-25px;left:90px;width:200px;color:#fcfff4;font-size:1.1em}.checkbox input[type=checkbox]:checked+label{left:38px}.checkbox label{display:block;width:34px;height:20px;-webkit-border-radius:50px;-moz-border-radius:50px;border-radius:50px;-webkit-transition:all .4s ease;-moz-transition:all .4s ease;-o-transition:all .4s ease;-ms-transition:all .4s ease;transition:all .4s ease;cursor:pointer;position:absolute;top:3px;left:3px;z-index:1;background:#fcfff4;background:-webkit-linear-gradient(top,#fcfff4 0,#dfe5d7 40%,#b3bead 100%);background:-moz-linear-gradient(top,#fcfff4 0,#dfe5d7 40%,#b3bead 100%);background:-o-linear-gradient(top,#fcfff4 0,#dfe5d7 40%,#b3bead 100%);background:-ms-linear-gradient(top,#fcfff4 0,#dfe5d7 40%,#b3bead 100%);background:linear-gradient(top,#fcfff4 0,#dfe5d7 40%,#b3bead 100%);-webkit-box-shadow:0 2px 5px 0 rgba(0,0,0,.3);-moz-box-shadow:0 2px 5px 0 rgba(0,0,0,.3);box-shadow:0 2px 5px 0 rgba(0,0,0,.3)}";
@@ -1302,7 +1357,7 @@ function Graph(container, width, height, colors, options) {
     this.dataCanvasBuffer.width = this.dataCanvas.width - this.dataLineWidth;
     this.dataCanvasBuffer.height = this.dataCanvas.height;
     this.bctx = this.dataCanvasBuffer.getContext('2d');
-};
+}
 
 Graph.prototype.constructor = Graph;
 
@@ -1361,7 +1416,7 @@ Graph.prototype.drawLegend = function (values) {
         this.ctx.fillStyle = this.labelStyle;
         this.ctx.fillText(k, x, y);
 
-        ++yIndex
+        ++yIndex;
 
         // Draw children
         for (var c in values[k]) {
@@ -1412,7 +1467,7 @@ Graph.prototype.drawData = function (values) {
     for (var k in values) {
         for (var c in values[k]) {
             this.dctx.beginPath();
-            this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length]
+            this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
             this.dctx.lineWidth = this.dataLineWidth;
 
             step = ((values[k][c] / this.maxValue) * this.dataCanvas.height);
@@ -1429,24 +1484,53 @@ Graph.prototype.drawData = function (values) {
     this.ctx.drawImage(this.dataCanvas, this.legendWidth, 0);
 };
 
+Graph.prototype.destroy = function () {
+    this.canvas = null;
+    this.ctx = null;
+
+    this.labelStyle = null;
+
+    this.maxValue = null;
+    this.padding = null;
+
+    this.dataLineWidth = null;
+    this.legendWidth = null;
+    this.legendBoxSize = null;
+    this.legendIndent = null;
+
+    this.colors = null;
+
+    this.dataCanvas = null;
+    this.dctx = null;
+
+    this.dataCanvasBuffer = null;
+    this.bctx = null;
+};
+
 },{}],18:[function(require,module,exports){
 //Some general dom helpers
 var ui = {
-    delegate: function(dom, evt, selector, fn) {
+    delegate: function (dom, evt, selector, fn) {
         dom.addEventListener(evt, function(e) {
             window.target = e.target;
             if (e.target && e.target.matches(selector)) {
                 e.delegateTarget = e.target;
-                if (fn) fn(e);
+
+                if (fn) {
+                    fn(e);
+                }
             }
             else if (e.target.parentElement && e.target.parentElement.matches(selector)) {
                 e.delegateTarget = e.target.parentElement;
-                if (fn) fn(e);
+
+                if (fn) {
+                    fn(e);
+                }
             }
         });
     },
 
-    on: function(dom, evt, delegate, fn) {
+    on: function (dom, evt, delegate, fn) {
         if (typeof delegate === 'function') {
             fn = delegate;
             delegate = null;
@@ -1459,7 +1543,7 @@ var ui = {
         dom.addEventListener(evt, fn);
     },
 
-    removeClass: function(dom, cls) {
+    removeClass: function (dom, cls) {
         var classes = dom.className.split(' '),
             i = classes.indexOf(cls);
 
@@ -1469,18 +1553,18 @@ var ui = {
         }
     },
 
-    addClass: function(dom, cls) {
+    addClass: function (dom, cls) {
         var classes = dom.className.split(' ');
 
         classes.push(cls);
         dom.className = classes.join(' ').trim();
     },
 
-    hasClass: function(dom, cls) {
+    hasClass: function (dom, cls) {
         return dom.className.split(' ').indexOf(cls) !== -1;
     },
 
-    toggleClass: function(dom, cls) {
+    toggleClass: function (dom, cls) {
         if (ui.hasClass(dom, cls)) {
             ui.removeClass(dom, cls);
         } else {
@@ -1488,15 +1572,15 @@ var ui = {
         }
     },
 
-    setText: function(dom, txt) {
+    setText: function (dom, txt) {
         dom.textContent = txt;
     },
 
-    setHtml: function(dom, html) {
+    setHtml: function (dom, html) {
         dom.innerHTML = html;
     },
 
-    setStyle: function(dom, style, value) {
+    setStyle: function (dom, style, value) {
         if(typeof style === 'string') {
             dom.style[style] = value;
         } else {
@@ -1506,21 +1590,21 @@ var ui = {
         }
     },
 
-    empty: function(dom) {
+    empty: function (dom) {
         while(dom.firstChild) {
             dom.removeChild(dom.firstChild);
         }
     },
 
-    show: function(dom) {
+    show: function (dom) {
         ui.setStyle(dom, 'display', 'block');
     },
 
-    hide: function(dom) {
+    hide: function (dom) {
         ui.setStyle(dom, 'display', 'none');
     },
 
-    clear: function() {
+    clear: function () {
         var br = document.createElement('br');
         ui.setStyle(br, 'clear', 'both');
 
@@ -1561,8 +1645,11 @@ if (!HTMLElement.prototype.matches) {
                 i = 0;
 
             while (element = elements[i++]) {
-                if (element === this) return true;
+                if (element === this) {
+                    return true;
+                }
             }
+
             return false;
         };
 }
