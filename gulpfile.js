@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
     path = require('path'),
     gutil = require('gulp-util'),
+    jshint = require('gulp-jshint'),
     source = require('vinyl-source-stream'),
     watchify = require('watchify'),
     browserify = require('browserify'),
@@ -54,6 +55,15 @@ gulp.task('build', function () {
 });
 
 /*****
+ * JSHint task, lints the lib and test *.js files.
+ *****/
+gulp.task('jshint', function () {
+    return gulp.src(['./src/**/*.js'])
+        .pipe(jshint())
+        .pipe(jshint.reporter('jshint-summary'));
+});
+
+/*****
  * Base task
  *****/
-gulp.task('default', ['build']);
+gulp.task('default', ['jshint', 'build']);
