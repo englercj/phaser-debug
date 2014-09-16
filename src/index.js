@@ -74,7 +74,10 @@ function Debug(game, parent) {
     this.timer = (window.performance ? window.performance : Date);
 };
 
+//  Extends the Phaser.Plugin template, setting up values we need
+Debug.prototype = Object.create(Phaser.Plugin.prototype);
 Debug.prototype.constructor = Debug;
+
 module.exports = Debug;
 
 Debug.prototype.init = function () {
