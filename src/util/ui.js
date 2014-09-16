@@ -1,6 +1,6 @@
 //Some general dom helpers
 var ui = {
-    delegate: function(dom, evt, selector, fn) {
+    delegate: function (dom, evt, selector, fn) {
         dom.addEventListener(evt, function(e) {
             window.target = e.target;
             if (e.target && e.target.matches(selector)) {
@@ -14,7 +14,7 @@ var ui = {
         });
     },
 
-    on: function(dom, evt, delegate, fn) {
+    on: function (dom, evt, delegate, fn) {
         if (typeof delegate === 'function') {
             fn = delegate;
             delegate = null;
@@ -27,7 +27,7 @@ var ui = {
         dom.addEventListener(evt, fn);
     },
 
-    removeClass: function(dom, cls) {
+    removeClass: function (dom, cls) {
         var classes = dom.className.split(' '),
             i = classes.indexOf(cls);
 
@@ -37,18 +37,18 @@ var ui = {
         }
     },
 
-    addClass: function(dom, cls) {
+    addClass: function (dom, cls) {
         var classes = dom.className.split(' ');
 
         classes.push(cls);
         dom.className = classes.join(' ').trim();
     },
 
-    hasClass: function(dom, cls) {
+    hasClass: function (dom, cls) {
         return dom.className.split(' ').indexOf(cls) !== -1;
     },
 
-    toggleClass: function(dom, cls) {
+    toggleClass: function (dom, cls) {
         if (ui.hasClass(dom, cls)) {
             ui.removeClass(dom, cls);
         } else {
@@ -56,15 +56,15 @@ var ui = {
         }
     },
 
-    setText: function(dom, txt) {
+    setText: function (dom, txt) {
         dom.textContent = txt;
     },
 
-    setHtml: function(dom, html) {
+    setHtml: function (dom, html) {
         dom.innerHTML = html;
     },
 
-    setStyle: function(dom, style, value) {
+    setStyle: function (dom, style, value) {
         if(typeof style === 'string') {
             dom.style[style] = value;
         } else {
@@ -74,21 +74,21 @@ var ui = {
         }
     },
 
-    empty: function(dom) {
+    empty: function (dom) {
         while(dom.firstChild) {
             dom.removeChild(dom.firstChild);
         }
     },
 
-    show: function(dom) {
+    show: function (dom) {
         ui.setStyle(dom, 'display', 'block');
     },
 
-    hide: function(dom) {
+    hide: function (dom) {
         ui.setStyle(dom, 'display', 'none');
     },
 
-    clear: function() {
+    clear: function () {
         var br = document.createElement('br');
         ui.setStyle(br, 'clear', 'both');
 
