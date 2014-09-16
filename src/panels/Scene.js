@@ -217,4 +217,4 @@ function typeToString () {
                 return 'Unknown';
         }
     }
-};
+}

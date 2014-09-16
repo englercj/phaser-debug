@@ -72,7 +72,7 @@ function Debug(game, parent) {
     };
 
     this.timer = (window.performance ? window.performance : Date);
-};
+}
 
 //  Extends the Phaser.Plugin template, setting up values we need
 Debug.prototype = Object.create(Phaser.Plugin.prototype);
@@ -145,7 +145,7 @@ Debug.prototype.mark = function (label) {
 };
 
 Debug.prototype.destroy = function () {
-    Panel.prototype.destroy.call(this);
+    Phaser.Plugin.prototype.destroy.call(this);
 
     for (var p in this.panels) {
         this.panels[p].destroy();
@@ -163,7 +163,9 @@ Debug.prototype.destroy = function () {
 };
 
 Debug.prototype._wrap = function (obj, component, method, timingStat) {
-    if (!obj[component] || !obj[component][method]) return;
+    if (!obj[component] || !obj[component][method]) {
+        return;
+    }
 
     obj[component][method] = (function(self, name, method, stat, fn) {
         var start = 0,

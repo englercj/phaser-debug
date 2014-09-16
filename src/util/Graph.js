@@ -31,7 +31,7 @@ function Graph(container, width, height, colors, options) {
     this.dataCanvasBuffer.width = this.dataCanvas.width - this.dataLineWidth;
     this.dataCanvasBuffer.height = this.dataCanvas.height;
     this.bctx = this.dataCanvasBuffer.getContext('2d');
-};
+}
 
 Graph.prototype.constructor = Graph;
 
@@ -90,7 +90,7 @@ Graph.prototype.drawLegend = function (values) {
         this.ctx.fillStyle = this.labelStyle;
         this.ctx.fillText(k, x, y);
 
-        ++yIndex
+        ++yIndex;
 
         // Draw children
         for (var c in values[k]) {
@@ -141,7 +141,7 @@ Graph.prototype.drawData = function (values) {
     for (var k in values) {
         for (var c in values[k]) {
             this.dctx.beginPath();
-            this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length]
+            this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
             this.dctx.lineWidth = this.dataLineWidth;
 
             step = ((values[k][c] / this.maxValue) * this.dataCanvas.height);

@@ -19,9 +19,9 @@ function Performance(game, parent) {
             '#24CBE5', '#64E572', '#FF9655', '#FFF263',
             '#6AF9C4',
             // Colors from: https://github.com/highslide-software/highcharts.com/blob/master/js/themes/dark-unica.js
-            "#2b908f", "#90ee7e", "#f45b5b", "#7798BF",
-            "#aaeeee", "#ff0066", "#eeaaee",
-            "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"
+            '#2b908f', '#90ee7e', '#f45b5b', '#7798BF',
+            '#aaeeee', '#ff0066', '#eeaaee',
+            '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'
         ]
     };
 }
@@ -44,7 +44,7 @@ Performance.prototype.update = function () {
 };
 
 Performance.prototype.mark = function (label) {
-    this.eventQueue.push(name);
+    this.eventQueue.push(label);
 };
 
 Performance.prototype.destroy = function () {

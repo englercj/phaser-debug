@@ -5,11 +5,17 @@ var ui = {
             window.target = e.target;
             if (e.target && e.target.matches(selector)) {
                 e.delegateTarget = e.target;
-                if (fn) fn(e);
+
+                if (fn) {
+                    fn(e);
+                }
             }
             else if (e.target.parentElement && e.target.parentElement.matches(selector)) {
                 e.delegateTarget = e.target.parentElement;
-                if (fn) fn(e);
+
+                if (fn) {
+                    fn(e);
+                }
             }
         });
     },
@@ -129,8 +135,11 @@ if (!HTMLElement.prototype.matches) {
                 i = 0;
 
             while (element = elements[i++]) {
-                if (element === this) return true;
+                if (element === this) {
+                    return true;
+                }
             }
+
             return false;
         };
 }
