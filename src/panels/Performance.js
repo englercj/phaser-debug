@@ -50,6 +50,8 @@ Performance.prototype.mark = function (label) {
 Performance.prototype.destroy = function () {
     Panel.prototype.destroy.call(this);
 
+    this.graph.destroy();
+
     this.eventQueue = null;
     this.graph = null;
     this.colorPalettes = null;

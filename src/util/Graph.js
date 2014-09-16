@@ -157,3 +157,26 @@ Graph.prototype.drawData = function (values) {
     // draw the data canvas to the main rendered canvas
     this.ctx.drawImage(this.dataCanvas, this.legendWidth, 0);
 };
+
+Graph.prototype.destroy = function () {
+    this.canvas = null;
+    this.ctx = null;
+
+    this.labelStyle = null;
+
+    this.maxValue = null;
+    this.padding = null;
+
+    this.dataLineWidth = null;
+    this.legendWidth = null;
+    this.legendBoxSize = null;
+    this.legendIndent = null;
+
+    this.colors = null;
+
+    this.dataCanvas = null;
+    this.dctx = null;
+
+    this.dataCanvasBuffer = null;
+    this.bctx = null;
+};
