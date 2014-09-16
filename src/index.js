@@ -78,6 +78,9 @@ function Debug(game, parent) {
 Debug.prototype = Object.create(Phaser.Plugin.prototype);
 Debug.prototype.constructor = Debug;
 
+Debug.PKG = require('../package.json');
+Debug.VERSION = Debug.PKG.version;
+
 module.exports = Debug;
 
 Debug.prototype.init = function () {
