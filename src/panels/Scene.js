@@ -93,6 +93,14 @@ Scene.prototype.show = function () {
     Panel.prototype.show.call(this);
 };
 
+Scene.prototype.destroy = function () {
+    Panel.prototype.destroy.call(this);
+
+    this.tree = null;
+    this.details = null;
+    this.refresh = null;
+};
+
 Scene.prototype._onLiClick = function (e) {
     e.stopPropagation();
 

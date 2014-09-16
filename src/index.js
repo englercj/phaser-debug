@@ -144,6 +144,24 @@ Debug.prototype.mark = function (label) {
     }
 };
 
+Debug.prototype.destroy = function () {
+    Panel.prototype.destroy.call(this);
+
+    for (var p in this.panels) {
+        this.panels[p].destroy();
+    }
+
+    this.panels = null;
+    this.tickTimings = null;
+    this.timings = null;
+
+    this._container = null;
+    this._bar = null;
+    this._stats = null;
+
+    this.timer = null;
+};
+
 Debug.prototype._wrap = function (obj, component, method, timingStat) {
     if (!obj[component] || !obj[component][method]) return;
 

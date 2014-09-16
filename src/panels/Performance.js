@@ -10,6 +10,8 @@ function Performance(game, parent) {
     this.title = 'Performance';
     this.eventQueue = [];
 
+    this.graph = null;
+
     this.colorPalettes = {
         _default: [
             // Colors from: https://github.com/highslide-software/highcharts.com/blob/master/js/themes/grid.js
@@ -43,4 +45,12 @@ Performance.prototype.update = function () {
 
 Performance.prototype.mark = function (label) {
     this.eventQueue.push(name);
+};
+
+Performance.prototype.destroy = function () {
+    Panel.prototype.destroy.call(this);
+
+    this.eventQueue = null;
+    this.graph = null;
+    this.colorPalettes = null;
 };

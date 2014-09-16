@@ -52,3 +52,14 @@ Panel.prototype.hide = function () {
     this.active = false;
     ui.setStyle(this._panel, 'display', 'none');
 };
+
+Panel.prototype.destroy = function () {
+    this.game = null;
+    this.parent = null;
+
+    this.name = null;
+    this.title = null;
+    this.active = null;
+
+    this._panel = null;
+};
