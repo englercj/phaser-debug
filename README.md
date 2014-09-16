@@ -9,7 +9,8 @@ Simple debug module for the [Phaser][0] game framework.
 
 ## Usage
 
-Simply download the `dist/phaser-debug.js` script and include it on your page after including Phaser:
+Simply download the `phaser-debug.js` script from the [latest release][10] and include it on your page
+after including Phaser:
 
 ```html
 <script src="phaser.js"></script>
@@ -21,6 +22,8 @@ After adding the script to the page you can activate it by enabling the plugin:
 ```js
 game.add.plugin(Phaser.Plugin.Debug);
 ```
+
+[10]: https://github.com/englercj/phaser-debug/releases
 
 ## Browser Support
 
