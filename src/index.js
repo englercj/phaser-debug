@@ -256,10 +256,11 @@ Debug.prototype._createElement = function () {
 
 Debug.prototype._createMenuHead = function () {
     var div = document.createElement('span'),
-        r = this.game.renderType;
+        r = this.game.renderType,
+        type = (r === Phaser.WEBGL ? 'WebGL' : (r === Phaser.HEADLESS ? 'Headless' : 'Canvas'));
 
     ui.addClass(div, 'pdebug-head');
-    ui.setText(div, 'Phaser Debug (' + (r === Phaser.WEBGL ? 'WebGL' : (r === Phaser.HEADLESS ? 'Headless' : 'Canvas')) + '):');
+    ui.setText(div, 'Phaser Debug (' + type + '):');
 
     return div;
 };

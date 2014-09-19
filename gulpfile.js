@@ -58,7 +58,10 @@ gulp.task('build', function () {
  * JSHint task, lints the lib and test *.js files.
  *****/
 gulp.task('jshint', function () {
-    return gulp.src(['./src/**/*.js'])
+    return gulp.src([
+            './src/**/*.js',
+            'gulpfile.js'
+        ])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-summary'));
 });

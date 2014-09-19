@@ -100,7 +100,11 @@ Graph.prototype.drawLegend = function (values) {
             this.ctx.fillRect(x + this.legendIndent, y, this.legendBoxSize, this.legendBoxSize);
 
             this.ctx.fillStyle = this.labelStyle;
-            this.ctx.fillText(Math.round(values[k][c]) + 'ms - ' + c, x + this.legendIndent + this.legendBoxSize + this.padding, y + this.legendBoxSize);
+            this.ctx.fillText(
+                Math.round(values[k][c]) + 'ms - ' + c,
+                x + this.legendIndent + this.legendBoxSize + this.padding,
+                y + this.legendBoxSize
+            );
 
             ++yIndex;
 
