@@ -70,3 +70,35 @@ gulp.task('jshint', function () {
  * Base task
  *****/
 gulp.task('default', ['jshint', 'build']);
+
+/*****
+ * Release task
+ *****/
+gulp.task('release', ['jshint', 'build'], function (cb) {
+    var up = process.argv[3] || 'patch';
+
+    up = up.replace('--', '');
+
+    if (Object.keys(ver).indexOf(up) === -1) {
+        return cb(new Error('Please specify major, minor, or patch release.'));
+    }
+
+    version[ver[up]]++;
+    for (var i = 0; i < 3; ++i) {
+        if (i > ver[up]) {
+            version[i] = 0;
+        }
+    }
+
+    version = 'v' + version.join('.');
+
+    return es.merge(
+            gulp.src('./package.json')
+                .pipe(bump({ type: up }))
+                .pipe(gulp.dest('./')),
+            gulp.src(outdir + '/' + outfile)
+                .pipe(gulp.dest('./dist'))
+        )
+        .pipe(git.commit('release ' + version))
+        .pipe(git.tag(version, version, function () {}));
+});
