@@ -1,10 +1,10 @@
 {
   "name": "phaser-debug",
   "version": "1.1.0",
-  "description": "Robust debug module for phaser",
+  "description": "Simple debug module for phaser",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
-  "main": "./src/index.js",
+  "main": "./dist/phaser-debug.js",
   "homepage": "https://github.com/englercj/phaser-debug",
   "repository": {
     "type": "git",
