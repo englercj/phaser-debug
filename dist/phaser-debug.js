@@ -898,11 +898,10 @@ module.exports = require("handlebars/runtime")["default"];
 },{"handlebars/runtime":8}],10:[function(require,module,exports){
 module.exports={
   "name": "phaser-debug",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simple debug module for phaser",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
-  "main": "./dist/phaser-debug.js",
   "homepage": "https://github.com/englercj/phaser-debug",
   "repository": {
     "type": "git",
@@ -935,13 +934,12 @@ module.exports={
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^1.0.2"
   },
+  "browser": "./src/index.js",
   "browserify": {
+    "transform": ["hbsfy", "node-lessify"],
     "transform-options": {
       "node-lessify": "textMode"
     }
-  },
-  "engine": {
-    "phaser": "^2.1.0"
   }
 }
 
