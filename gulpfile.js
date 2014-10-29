@@ -1,7 +1,11 @@
 var gulp = require('gulp'),
     path = require('path'),
+    git = require('gulp-git'),
+    bump = require('gulp-bump'),
     gutil = require('gulp-util'),
     jshint = require('gulp-jshint'),
+
+    es = require('event-stream'),
     source = require('vinyl-source-stream'),
     watchify = require('watchify'),
     browserify = require('browserify'),
@@ -9,7 +13,14 @@ var gulp = require('gulp'),
     index = './src/index.js',
     outdir = './build',
     bundle = 'Phaser.Plugin.Debug',
-    outfile = 'phaser-debug.js';
+    outfile = 'phaser-debug.js',
+    ver = {
+        major: 0,
+        minor: 1,
+        patch: 2
+    },
+    pkg = require('./package.json'),
+    version = pkg.version.split('.');
 
 function rebundle(file) {
     if (file) {
