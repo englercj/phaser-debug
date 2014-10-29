@@ -38,12 +38,7 @@ function createBundler(args) {
     args = args || {};
     args.standalone = bundle;
 
-    var bundler = browserify(index, args);
-
-    bundler.transform('node-lessify');
-    bundler.transform('hbsfy');
-
-    return bundler;
+    return browserify(index, args);
 }
 
 /*****
