@@ -898,7 +898,7 @@ module.exports = require("handlebars/runtime")["default"];
 },{"handlebars/runtime":8}],10:[function(require,module,exports){
 module.exports={
   "name": "phaser-debug",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Simple debug module for phaser",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
@@ -919,6 +919,7 @@ module.exports={
   ],
   "dependencies": {
     "handlebars": "^2.0.0",
+    "node-lessify": "0.0.4",
     "hbsfy": "^2.1.0"
   },
   "devDependencies": {
@@ -930,13 +931,15 @@ module.exports={
     "gulp-jshint": "^1.8.4",
     "gulp-util": "^3.0.1",
     "jshint-summary": "^0.4.0",
-    "node-lessify": "0.0.4",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^1.0.2"
   },
   "browser": "./src/index.js",
   "browserify": {
-    "transform": ["hbsfy", "node-lessify"],
+    "transform": [
+      "hbsfy",
+      "node-lessify"
+    ],
     "transform-options": {
       "node-lessify": "textMode"
     }
