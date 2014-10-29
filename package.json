@@ -21,6 +21,7 @@
   ],
   "dependencies": {
     "handlebars": "^2.0.0",
+    "node-lessify": "0.0.4",
     "hbsfy": "^2.1.0"
   },
   "devDependencies": {
@@ -32,7 +33,6 @@
     "gulp-jshint": "^1.8.4",
     "gulp-util": "^3.0.1",
     "jshint-summary": "^0.4.0",
-    "node-lessify": "0.0.4",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^1.0.2"
   },
