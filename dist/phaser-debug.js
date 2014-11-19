@@ -898,7 +898,7 @@ module.exports = require("handlebars/runtime")["default"];
 },{"handlebars/runtime":8}],10:[function(require,module,exports){
 module.exports={
   "name": "phaser-debug",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Simple debug module for phaser",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
@@ -919,7 +919,7 @@ module.exports={
   ],
   "dependencies": {
     "handlebars": "^2.0.0",
-    "node-lessify": "0.0.4",
+    "node-lessify": "^0.0.5",
     "hbsfy": "^2.1.0"
   },
   "devDependencies": {
