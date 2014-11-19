@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "handlebars": "^2.0.0",
-    "node-lessify": "0.0.4",
+    "node-lessify": "^0.0.5",
     "hbsfy": "^2.1.0"
   },
   "devDependencies": {
