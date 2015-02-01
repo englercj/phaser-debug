@@ -36,6 +36,7 @@
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^1.0.2"
   },
+  "main": "./dist/phaser-debug.js",
   "browser": "./src/index.js",
   "browserify": {
     "transform": [
