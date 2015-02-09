@@ -40,7 +40,7 @@ Performance.prototype.createPanelElement = function () {
 };
 
 Performance.prototype.update = function () {
-    this.graph.addData(this.parent.timings);
+    this.graph.addData(this.parent.timings, this.eventQueue.shift());
 };
 
 Performance.prototype.mark = function (label) {
