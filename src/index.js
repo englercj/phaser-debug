@@ -125,8 +125,9 @@ Debug.prototype.postUpdate = function () {
         }
     }
 
-    var fps = Math.round(1000 / (this.tickTimings.start - this.tickTimings.lastStart)),
-        dpf = this.game.renderer.renderSession.drawCount;
+    var renderer = this.game.renderer,
+        fps = Math.round(1000 / (this.tickTimings.start - this.tickTimings.lastStart)),
+        dpf = renderer.renderSession ? renderer.renderSession.drawCount : renderer.drawCount;
 
     fps = fps > 60 ? 60 : fps;
 
