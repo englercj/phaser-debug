@@ -131,7 +131,8 @@ function typeToString () {
 
     // If no phaser type defined, try to guess
     if (node.type === undefined) {
-        if (node instanceof PIXI.Stage) {
+        if (typeof PIXI.Stage !== 'undefined' &&
+            node instanceof PIXI.Stage) {
             return 'PIXI Stage';
         }
         else if (node instanceof PIXI.Sprite) {
