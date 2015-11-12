@@ -131,7 +131,12 @@ function typeToString () {
 
     // If no phaser type defined, try to guess
     if (node.type === undefined) {
-        if (typeof PIXI.Stage !== 'undefined' &&
+        // Phaser.Stage does not have its 'type' property defined, so check here.
+        if (node instanceof Phaser.Stage) {
+            return 'Stage';
+        }
+        // PIXI.Stage was removed in Phaser 2.4.4, so make sure it's defined first.
+        else if (typeof PIXI.Stage !== 'undefined' &&
             node instanceof PIXI.Stage) {
             return 'PIXI Stage';
         }
