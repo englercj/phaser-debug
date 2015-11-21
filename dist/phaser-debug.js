@@ -898,7 +898,7 @@ module.exports = require("handlebars/runtime")["default"];
 },{"handlebars/runtime":8}],10:[function(require,module,exports){
 module.exports={
   "name": "phaser-debug",
-  "version": "1.1.5",
+  "version": "1.1.7",
   "description": "Simple debug module for phaser",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
@@ -1289,7 +1289,13 @@ function typeToString () {
 
     // If no phaser type defined, try to guess
     if (node.type === undefined) {
-        if (node instanceof PIXI.Stage) {
+        // Phaser.Stage does not have its 'type' property defined, so check here.
+        if (node instanceof Phaser.Stage) {
+            return 'Stage';
+        }
+        // PIXI.Stage was removed in Phaser 2.4.4, so make sure it's defined first.
+        else if (typeof PIXI.Stage !== 'undefined' &&
+            node instanceof PIXI.Stage) {
             return 'PIXI Stage';
         }
         else if (node instanceof PIXI.Sprite) {
