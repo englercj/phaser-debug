@@ -46,12 +46,7 @@ Scene.prototype.createPanelElement = function () {
     ui.on(this.tree, 'click', 'li', this._onLiClick.bind(this));
     ui.on(this.refresh, 'click', this._onRefreshClick.bind(this));
 
-    // this.renderer = new PIXI.CanvasRenderer(
-    //     512,
-    //     256,
-    //     document.createElement('canvas'),
-    //     true
-    // );
+    this.bmd = this.game.add.bitmapData(512, 256);
 
     return this._panel;
 };
@@ -71,11 +66,20 @@ Scene.prototype.rebuildTree = function () {
 
 Scene.prototype.reloadDetails = function () {
     var id = this.selected.dataset.id;
+    var obj = _cache[id];
 
-    this.details.innerHTML = detailsHtml(_cache[id]);
-    // this.details.appendChild(this.renderer.view);
+    this.details.innerHTML = detailsHtml(obj);
 
-    // this.renderer.renderDisplayObject(_cache[id]);
+    if (obj.texture) {
+        this.details.appendChild(this.bmd.canvas);
+
+        var w = Math.min(512, obj.width);
+        var h = Math.min(256, obj.height);
+
+        this.bmd.clear();
+        this.bmd.resize(w, h);
+        this.bmd.draw(obj, 0, 0, w, h);
+    }
 };
 
 Scene.prototype.select = function (li) {
