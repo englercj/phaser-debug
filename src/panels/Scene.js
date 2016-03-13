@@ -78,7 +78,10 @@ Scene.prototype.reloadDetails = function () {
 
         this.bmd.clear();
         this.bmd.resize(w, h);
-        this.bmd.draw(obj, 0, 0, w, h);
+
+        try {
+            this.bmd.draw(obj, 0, 0, w, h);
+        } catch (e) {};
     }
 };
 
