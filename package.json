@@ -1,9 +1,14 @@
 {
   "name": "phaser-debug",
-  "version": "1.1.9",
-  "description": "Simple debug module for phaser",
+  "version": "2.0.0",
+  "description": "Powerful debug module for the Phaser game engine.",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
+  "main": "./src/index.ts",
+  "typings": "./src/index",
+  "files": [
+    "lib/"
+  ],
   "homepage": "https://github.com/englercj/phaser-debug",
   "repository": {
     "type": "git",
@@ -20,31 +25,24 @@
     "engine"
   ],
   "dependencies": {
-    "handlebars": "^2.0.0",
-    "node-lessify": "^0.0.5",
-    "hbsfy": "^2.1.0"
+    "yo-yo": "^1.1.1"
   },
   "devDependencies": {
-    "browserify": "^5.11.1",
-    "event-stream": "^3.1.7",
-    "gulp": "^3.8.8",
-    "gulp-bump": "^0.1.11",
-    "gulp-git": "^0.5.3",
-    "gulp-jshint": "^1.8.4",
-    "gulp-util": "^3.0.1",
-    "jshint-summary": "^0.4.0",
-    "vinyl-source-stream": "^0.1.1",
-    "watchify": "^1.0.2"
+    "css-loader": "^0.23.1",
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-tslint": "^4.3.3",
+    "gulp-util": "^3.0.7",
+    "less": "^2.6.1",
+    "less-loader": "^2.2.2",
+    "run-sequence": "^1.1.5",
+    "style-loader": "^0.13.0",
+    "ts-loader": "^0.8.1",
+    "tslint": "^3.6.0",
+    "typescript": "^1.8.7",
+    "webpack": "^1.12.14"
   },
-  "main": "./dist/phaser-debug.js",
-  "browser": "./src/index.js",
-  "browserify": {
-    "transform": [
-      "hbsfy",
-      "node-lessify"
-    ],
-    "transform-options": {
-      "node-lessify": "textMode"
-    }
+  "peerDependencies": {
+    "phaser": "^2.4.6"
   }
 }

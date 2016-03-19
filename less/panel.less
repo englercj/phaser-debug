@@ -16,9 +16,11 @@
 
 @padding: 10px;
 
+@font-size: 14px;
+
 //container
 .pdebug {
-    font-size: 14px;
+    font-size: @font-size;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -51,6 +53,7 @@
     .pdebug-menu {
         height: @bar_height;
         padding: 0 15px;
+        font-size: 0; // this makes the space between the inline-block elements go away
 
         text-shadow: 1px 1px 0 #111;
 
@@ -58,8 +61,13 @@
 
         span {
             display: inline-block;
+            font-size: @font-size;
             height: @bar_height;
             line-height: @bar_height;
+        }
+
+        a {
+            font-size: @font-size;
         }
 
         //head of the menu bar
@@ -127,6 +135,10 @@
         font-size: 12px;
 
         background: @activeTabBackground;
+
+        &.active {
+            display: block;
+        }
 
         //the performance panel
         &.performance {}

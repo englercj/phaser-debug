@@ -1,110 +1,65 @@
-var gulp = require('gulp'),
-    path = require('path'),
-    git = require('gulp-git'),
-    bump = require('gulp-bump'),
-    gutil = require('gulp-util'),
-    jshint = require('gulp-jshint'),
+'use strict';
 
-    es = require('event-stream'),
-    source = require('vinyl-source-stream'),
-    watchify = require('watchify'),
-    browserify = require('browserify'),
+const gulp      = require('gulp');
+const gutil     = require('gulp-util');
+const tslint    = require('gulp-tslint');
+const del       = require('del');
+const runSeq    = require('run-sequence');
+const webpack   = require('webpack');
 
-    index = './src/index.js',
-    outdir = './build',
-    bundle = 'Phaser.Plugin.Debug',
-    outfile = 'phaser-debug.js',
-    ver = {
-        major: 0,
-        minor: 1,
-        patch: 2
-    },
-    pkg = require('./package.json'),
-    version = pkg.version.split('.');
+const webpackConfig = require('./webpack.config.js');
 
-function rebundle(file) {
-    if (file) {
-        gutil.log('Rebundling,', path.basename(file[0]), 'has changes.');
-    }
+const webpackDevConfig = Object.create(webpackConfig);
+webpackDevConfig.devtool = 'source-map';
+webpackDevConfig.debug = true;
+webpackDevConfig.watch = true;
+webpackDevConfig.cache = true;
 
-    return this.bundle()
-        // log errors if they happen
-        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-        .pipe(source(outfile))
-        .pipe(gulp.dest(outdir));
-}
+/**
+ * default - Task to run when no task is specified.
+ */
+gulp.task('default', ['build']);
 
-function createBundler(args) {
-    args = args || {};
-    args.standalone = bundle;
-
-    return browserify(index, args);
-}
-
-/*****
- * Dev task, incrementally rebuilds the output bundle as the the sources change
- *****/
-gulp.task('dev', function() {
-    watchify.args.standalone = bundle;
-    var bundler = watchify(createBundler(watchify.args));
-
-    bundler.on('update', rebundle);
-
-    return rebundle.call(bundler);
+/**
+ * build - Builds the bundle and processes resources.
+ */
+gulp.task('build', function (done) {
+    runSeq('lint', ['webpack:build'], done);
 });
 
-/*****
- * Build task, builds the output bundle
- *****/
-gulp.task('build', function () {
-    return rebundle.call(createBundler());
+/**
+ * dev - Development build meant for rebuilding incrementally during development.
+ */
+gulp.task('dev', ['build'], function () {
+    return gulp.watch('./src/**/*.ts', ['webpack:build']);
 });
 
-/*****
- * JSHint task, lints the lib and test *.js files.
- *****/
-gulp.task('jshint', function () {
-    return gulp.src([
-            './src/**/*.js',
-            'gulpfile.js'
-        ])
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-summary'));
+/**
+ * clean - Cleans the output path.
+ */
+gulp.task('clean', function () {
+    return del(webpackConfig.output.path);
 });
 
-/*****
- * Base task
- *****/
-gulp.task('default', ['jshint', 'build']);
+/**
+ * lint - Runs a fine-toothed comb over the typescript to remove lint.
+ */
+gulp.task('lint', function () {
+    return gulp.src('./src/**/*.ts')
+        .pipe(tslint())
+        .pipe(tslint.report('verbose'));
+});
 
-/*****
- * Release task
- *****/
-gulp.task('release', ['jshint', 'build'], function (cb) {
-    var up = process.argv[3] || 'patch';
+/**
+ * webpack:build - Builds the webpack bundle.
+ */
+gulp.task('webpack:build', function (done) {
+    webpack(process.env.NODE_ENV === 'production' ? webpackConfig : webpackDevConfig, (err, stats) => {
+        if (err)
+            throw new gutil.PluginError('webpack', err);
 
-    up = up.replace('--', '');
+        gutil.log('[webpack]', stats.toString({ colors: true }));
 
-    if (Object.keys(ver).indexOf(up) === -1) {
-        return cb(new Error('Please specify major, minor, or patch release.'));
-    }
-
-    version[ver[up]]++;
-    for (var i = 0; i < 3; ++i) {
-        if (i > ver[up]) {
-            version[i] = 0;
-        }
-    }
-
-    version = 'v' + version.join('.');
-
-    return es.merge(
-            gulp.src('./package.json')
-                .pipe(bump({ type: up }))
-                .pipe(gulp.dest('./')),
-            gulp.src(outdir + '/' + outfile)
-                .pipe(gulp.dest('./dist'))
-        )
-        .pipe(git.commit('release ' + version))
-        .pipe(git.tag(version, version, function () {}));
+        done();
+    });
 });
