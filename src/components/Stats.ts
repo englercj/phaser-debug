@@ -4,15 +4,14 @@ import Component from './Component';
 
 export default class Stats extends Component {
     render(children?: HTMLElement) {
-        const dpf = (<any>this.ui.plugin.game.renderer.renderSession).drawCount;
-        let fps = Math.round(1000 / (this.ui.plugin.tickTimings.start - this.ui.plugin.tickTimings.lastStart));
-
-        fps = fps > 60 ? 60 : fps;
+        const timings = this.ui.plugin.timings;
+        const dpf = (<any>this.ui.plugin).game.renderer.renderSession.drawCount;
+        let fps = Math.round(1000 / (timings.tick.start - timings.tick.lastStart));
 
         return super.render(yo`
             <span class="pdebug-stats">
                 <span class="pdebug-stats-item ms">
-                    <span>${Math.round(this.ui.plugin.tickTimings.ms)}</span> ms
+                    <span>${Math.round(timings.tick.ms)}</span> ms
                 </span>
 
                 <span class="pdebug-stats-item fps">

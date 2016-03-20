@@ -1,3 +1,5 @@
+import {default as Timings, TimedComponents} from './Timings';
+
 export default class Graph {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -59,7 +61,7 @@ export default class Graph {
     get element() { return this.canvas; }
 
     // render the graph with the new data point
-    addData(values: ITimings, event?: any) {
+    addData(values: Timings, event?: any) {
         // clear the main canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -98,46 +100,49 @@ export default class Graph {
         this.ctx.stroke();
     };
 
-    drawLegend(values: ITimings) {
+    drawLegend(timings: Timings) {
         let colorIndex = 0;
         let yIndex = 0;
         let x = this.padding;
         let y = 0;
+        let lastComponent = '';
 
-        for (let k in values) {
-            y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1)) + this.padding;
+        for (let i = 0; i < TimedComponents.length; ++i) {
+            const comp = TimedComponents[i];
 
-            // Draw parent label
+            if (lastComponent !== comp.component) {
+                y = (yIndex * this.legendBoxSize) + (this.padding * (yIndex + 1)) + this.padding;
+
+                // Draw parent label
+                this.ctx.fillStyle = this.labelStyle;
+                this.ctx.fillText(comp.component, x, y);
+
+                ++yIndex;
+                lastComponent = comp.component;
+            }
+
+            y = (yIndex * this.legendBoxSize) + (this.padding * yIndex);
+
+            this.ctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
+            this.ctx.fillRect(x + this.legendIndent, y, this.legendBoxSize, this.legendBoxSize);
+
             this.ctx.fillStyle = this.labelStyle;
-            this.ctx.fillText(k, x, y);
+            this.ctx.fillText(
+                Math.round(timings.data[comp.index]) + 'ms - ' + comp.method,
+                x + this.legendIndent + this.legendBoxSize + this.padding,
+                y + this.legendBoxSize
+            );
 
             ++yIndex;
 
-            // Draw children
-            for (let c in values[k]) {
-                y = (yIndex * this.legendBoxSize) + (this.padding * yIndex);
-
-                this.ctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
-                this.ctx.fillRect(x + this.legendIndent, y, this.legendBoxSize, this.legendBoxSize);
-
-                this.ctx.fillStyle = this.labelStyle;
-                this.ctx.fillText(
-                    Math.round(values[k][c]) + 'ms - ' + c,
-                    x + this.legendIndent + this.legendBoxSize + this.padding,
-                    y + this.legendBoxSize
-                );
-
-                ++yIndex;
-
-                if (yIndex > 16) {
-                    x += this.legendWidth / 2;
-                    yIndex = 0;
-                }
+            if (yIndex > 16) {
+                x += this.legendWidth / 2;
+                yIndex = 0;
             }
         }
     }
 
-    drawData(values: ITimings, event?: any) {
+    drawData(timings: Timings, event?: any) {
         let x = this.dataCanvas.width - this.dataLineWidth + 0.5;
         let y = this.dataCanvas.height - 0.5;
 
@@ -181,23 +186,20 @@ export default class Graph {
         // draws the data values to the new line of the data canvas
 
         // draw the new data points
-        let colorIndex = 0;
         let step = 0;
 
-        for (let k in values) {
-            for (let c in values[k]) {
-                this.dctx.beginPath();
-                this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[colorIndex++ % this.colors.length];
-                this.dctx.lineWidth = this.dataLineWidth;
+        for (let i = 0; i < timings.data.length; ++i) {
+            this.dctx.beginPath();
+            this.dctx.strokeStyle = this.dctx.fillStyle = this.colors[i % this.colors.length];
+            this.dctx.lineWidth = this.dataLineWidth;
 
-                step = ((values[k][c] / this.maxValue) * this.dataCanvas.height);
-                step = step < 0 ? 0 : step;
+            step = ((timings.data[i] / this.maxValue) * this.dataCanvas.height);
+            step = step < 0 ? 0 : step;
 
-                this.dctx.moveTo(x, y);
-                this.dctx.lineTo(x, y -= step);
+            this.dctx.moveTo(x, y);
+            this.dctx.lineTo(x, y -= step);
 
-                this.dctx.stroke();
-            }
+            this.dctx.stroke();
         }
 
         // draw the data canvas to the main rendered canvas

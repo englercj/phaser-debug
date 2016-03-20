@@ -13,10 +13,6 @@ interface ITickTimings {
     ms: number;
 }
 
-interface ITimings {
-    [key: string]: { [key: string]: number };
-}
-
 interface IStats {
     ms: HTMLElement;
     fps: HTMLElement;
