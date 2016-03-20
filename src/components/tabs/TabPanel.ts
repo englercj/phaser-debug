@@ -54,7 +54,9 @@ export default class TabPanel extends Component {
 
     render(children?: HTMLElement) {
         return super.render(yo`
-            <div class="pdebug-panel ${this.name} ${this.active ? 'active' : ''}">${children}</div>
+            <div class="pdebug-panel ${this.name} ${this.active ? 'active' : ''}">
+                ${children}
+            </div>
         `);
     }
 

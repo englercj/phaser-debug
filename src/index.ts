@@ -17,8 +17,6 @@ export default class Debug extends Phaser.Plugin {
     tickTimings: ITickTimings;
     timings: ITimings;
 
-    private _stats: IStats;
-
     private _ui: UI;
 
     constructor(game: Phaser.Game, parent: PIXI.DisplayObject) {
@@ -66,13 +64,6 @@ export default class Debug extends Phaser.Plugin {
             },
         };
 
-        this._stats = {
-            ms: null,
-            fps: null,
-            dpf: null,
-            ent: null,
-        };
-
         this._ui = null;
     }
 
@@ -117,8 +108,6 @@ export default class Debug extends Phaser.Plugin {
         this.timer = null;
         this.tickTimings = null;
         this.timings = null;
-
-        this._stats = null;
 
         this._ui = null;
     }
