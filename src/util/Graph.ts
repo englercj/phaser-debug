@@ -101,6 +101,8 @@ export default class Graph {
     };
 
     drawLegend(timings: Timings) {
+        // TODO: Optimize by caching the position calculations done here
+        // no need to redo them everytime we draw this legend
         let colorIndex = 0;
         let yIndex = 0;
         let x = this.padding;
