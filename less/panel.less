@@ -18,7 +18,7 @@
 
 @font-size: 14px;
 
-//container
+// container
 .pdebug {
     font-size: @font-size;
     position: fixed;
@@ -49,7 +49,7 @@
         color: @foreground;
     }
 
-    //menu bar
+    // menu bar
     .pdebug-menu {
         height: @bar_height;
         padding: 0 15px;
@@ -70,35 +70,35 @@
             font-size: @font-size;
         }
 
-        //head of the menu bar
+        // head of the menu bar
         .pdebug-head {
             padding-right: 25px;
             border-right: @seperatorWidth solid @separatorColor;
         }
 
-        //main bar stats
+        // main bar stats
         .pdebug-stats {
             float:right;
             padding: 0 0 0 @padding;
 
-            //an item on the stats bar
+            // an item on the stats bar
             .pdebug-stats-item {
                 display: inline-block;
                 width: 100px;
 
                 text-align: right;
 
-                & > span {
+                > span {
                     color: @strong;
                 }
 
-                //fps stat item
+                // fps stat item
                 &.fps {}
 
-                //ms stat item
+                // ms stat item
                 &.ms {}
 
-                //sprites stat item
+                // sprites stat item
                 &.obj {
                     width: 100px;
                     border: none;
@@ -106,7 +106,7 @@
             }
         }
 
-        //menu items (to switch between panels)
+        // menu items (to switch between panels)
         .pdebug-menu-item {
             color: @strong;
 
@@ -126,7 +126,7 @@
         }
     }
 
-    //panels
+    // panels
     .pdebug-panel {
         display: none;
         height: @panel_height;
@@ -140,11 +140,11 @@
             display: block;
         }
 
-        //the performance panel
+        // the performance panel
         &.performance {}
 
-        //the scene tree panel
-        &.scene {
+        // the scene tree panel
+        &.scene_tree {
             .sidebar {
                 float: left;
                 height: 100%;
@@ -165,7 +165,7 @@
                 position: absolute;
             }
 
-            > ul {
+            > div > ul {
                 padding: 0;
                 margin: 0;
 
