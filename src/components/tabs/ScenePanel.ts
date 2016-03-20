@@ -1,31 +1,40 @@
-import * as yo from 'yo-yo';
+import dom from '../../util/dom';
 
 import TabPanel from './TabPanel';
 import UI from '../UI';
 
 export default class ScenePanel extends TabPanel {
     selected: PIXI.DisplayObjectContainer;
-    selectedLi: HTMLElement;
+    selectedLi: HTMLLIElement;
+
+    sidebar: HTMLUListElement;
+    details: HTMLDivElement;
 
     constructor(ui: UI) {
         super(ui, 'Scene Tree');
 
         this.selected = null;
         this.selectedLi = null;
+
+        this.sidebar = null;
+        this.details = null;
     }
 
     render() {
-        return super.render(yo`<div>
-            <ul class="sidebar">
-                ${this._renderTree(this.ui.plugin.game.stage)}
-            </ul>
-            <a href="#" class="refresh" onclick=${(e: MouseEvent) => this._onRefreshClick(e)}>
-                refresh
-            </a>
-            <div class="details">
-                ${this._renderDetails(this.selected)}
-            </div>
-        </div>`);
+        return super.render(
+            this.sidebar = dom('ul', { className: 'sidebar' },
+                this._renderTree(this.ui.plugin.game.stage)
+            ),
+            dom('a', {
+                href: '#',
+                className: 'refresh',
+                textContent: 'refresh',
+                onclick: (e: MouseEvent) => this._onRefreshClick(e),
+            }),
+            this.details = dom('div', { className: 'details' },
+                this._renderDetails(this.selected)
+            )
+        );
     }
 
     destroy() {
@@ -33,109 +42,90 @@ export default class ScenePanel extends TabPanel {
 
         this.selected = null;
         this.selectedLi = null;
+
+        this.sidebar = null;
+        this.details = null;
     }
 
-    private _renderTree(obj: PIXI.DisplayObjectContainer) {
+    private _renderTree(obj: PIXI.DisplayObjectContainer): HTMLLIElement {
         const className = obj.children && obj.children.length ? 'has-children' : '';
+        const name = (<any>obj).name || (<any>obj).key;
 
-        return yo`
-            <li class="${className}" onclick=${(e: MouseEvent) => this._onTreeItemClick(e, obj)}>
-                ${this._typeToString(obj)}
-                ${(<any>obj).name ? yo`<span class="weak">(${(<any>obj).name})</span>` : ''}
-                ${obj.children && obj.children.length ?
-                    yo`<ul>
-                        ${obj.children.map((c: PIXI.DisplayObjectContainer) => {
-                            this._renderTree(c);
-                        })}
-                    </ul>`
-                : ''}
-            </li>
-        `;
+        return dom('li', { className, onclick: (e: MouseEvent) => this._onTreeItemClick(e, obj) },
+            dom.text(this._typeToString(obj)),
+            name ? dom('span', { className: 'weak', textContent: ` (${name})` }) : null,
+            obj.children && obj.children.length ?
+                dom('ul', {},
+                    obj.children.map((c: PIXI.DisplayObjectContainer) => {
+                        return this._renderTree(c);
+                    })
+                )
+            : null
+        );
     }
 
     private _renderDetails(obj?: PIXI.DisplayObjectContainer) {
-        if (!obj) { return yo``; }
+        if (!obj) { return []; }
 
-        return yo`<div>
-            <br /><br />
+        return [
+            dom('br'),
+            dom('br'),
 
-            <label>Name:</label>
-            <strong>${(<any>obj).name}</strong>
-            <br />
+            this._createValue('Name:', (<any>obj).name),
+            this._createValue('Key:', (<any>obj).key),
+            this._createValue('Type:', (<any>obj).typeString || this._typeToString(obj)),
+            this._createValue('Visible:', obj.visible),
+            this._createValue('Rotation:', obj.rotation),
+            this._createValue('Alpha:', obj.alpha),
+            this._createValue('Position:', `(${obj.position.x}, ${obj.position.y})`),
+            this._createValue('Scale:', `(${obj.scale.x}, ${obj.scale.y})`),
+            this._createValue('Size:', `(${obj.width}, ${obj.height})`),
 
-            <label>Type:</label>
-            <strong>${(<any>obj).typeString || this._typeToString(obj)}</strong>
-            <br />
+            dom('hr'),
 
-            <label>Visible:</label>
-            <strong>${obj.visible}</strong>
-            <br />
+            this._createValue('World Visible:', obj.worldVisible),
+            this._createValue('World Rotation:', obj.worldRotation),
+            this._createValue('World Alpha:', obj.worldAlpha),
+            this._createValue('World Position:', `(${obj.worldPosition.x}, ${obj.worldPosition.y})`),
+            this._createValue('World Scale:', `(${obj.worldScale.x}, ${obj.worldScale.y})`),
 
-            <label>Rotation:</label>
-            <strong>${obj.rotation}</strong>
-            <br />
+            dom('hr'),
 
-            <label>Position:</label>
-            <strong>(${obj.position.x}</strong>, <strong>${obj.position.y})</strong>
-            <br />
+            obj.children && obj.children.length ? [
+                this._createValue('Children:', obj.children.length),
+                dom('br')
+            ] : null,
 
-            <label>Scale:</label>
-            <strong>(${obj.scale.x}</strong>, <strong>${obj.scale.y})</strong>
-            <br />
+            (<any>obj).texture ? [
+                dom('label', { textContent: 'Texture:' }),
+                (<any>obj).texture.baseTexture.source.src ?
+                    dom('a', {
+                        target: '_blank',
+                        href: (<any>obj).texture.baseTexture.source.src,
+                        textContent: (<any>obj).texture.baseTexture.source.src,
+                    })
+                    :
+                    dom('strong', { textContent: (<any>obj).texture.baseTexture.source }),
+                dom('br')
+            ] : null,
+        ];
+    }
 
-            <label>Alpha:</label>
-            <strong>${obj.alpha}</strong>
-            <br />
-
-            <hr />
-
-            <label>World Visible:</label>
-            <strong>${obj.worldVisible}</strong>
-            <br />
-
-            <label>World Rotation:</label>
-            <strong>${obj.worldRotation}</strong>
-            <br />
-
-            <label>World Position:</label>
-            <strong>(${obj.worldPosition.x}</strong>, <strong>${obj.worldPosition.y})</strong>
-            <br />
-
-            <label>World Scale:</label>
-            <strong>(${obj.worldScale.x}</strong>, <strong>${obj.worldScale.y})</strong>
-            <br />
-
-            <label>World Alpha:</label>
-            <strong>${obj.worldAlpha}</strong>
-            <br />
-
-            <hr />
-
-            ${obj.children && obj.children.length ? yo`<div>
-                <label>Children:</label>
-                <strong>${obj.children.length}</strong>
-                <br />
-            </div>` : ''}
-
-            ${(<any>obj).texture ? yo`<div>
-                <label>Texture:</label>
-                ${(<any>obj).texture.baseTexture.source.src ? yo`
-                    <a href="${(<any>obj).texture.baseTexture.source.src}" target="_blank">
-                        ${(<any>obj).texture.baseTexture.source.src}
-                    </a>
-                ` : yo`
-                    <strong>${(<any>obj).texture.baseTexture.source}</strong>
-                `}
-                <br />
-            </div>` : ''}
-        </div>`;
+    private _createValue(label: string, value: any) {
+        return [
+            dom('label', { textContent: label }),
+            dom('strong', { textContent: value }),
+            dom('br'),
+        ];
     }
 
     private _onRefreshClick(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
 
-        this.updatePanel();
+        dom.empty(this.sidebar);
+        dom.empty(this.details);
+        this.sidebar.appendChild(this._renderTree(this.ui.plugin.game.stage));
     }
 
     private _onTreeItemClick(event: MouseEvent, obj: PIXI.DisplayObjectContainer) {
@@ -146,12 +136,13 @@ export default class ScenePanel extends TabPanel {
         }
 
         this.selected = obj;
-        this.selectedLi = <HTMLElement>event.currentTarget;
+        this.selectedLi = <HTMLLIElement>event.currentTarget;
 
         this.selectedLi.classList.add('selected');
         this.selectedLi.classList.toggle('expanded');
 
-        this.updatePanel();
+        dom.empty(this.details);
+        dom.appendChildren(this.details, this._renderDetails(obj));
     };
 
     private _typeToString(node: any) {

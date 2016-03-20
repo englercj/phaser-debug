@@ -1,4 +1,4 @@
-import * as yo from 'yo-yo';
+import dom from '../../util/dom';
 
 import Component from '../Component';
 import UI from '../UI';
@@ -22,9 +22,6 @@ export default class TabPanel extends Component {
         this._element = null;
         this._menu = null;
     }
-
-    get panel() { return this._element; }
-    get menu() { return this._menu; }
 
     activate() {
         this.ui.deactivatePanels();
@@ -52,23 +49,28 @@ export default class TabPanel extends Component {
         }
     }
 
-    render(children?: HTMLElement) {
-        return super.render(yo`
-            <div class="pdebug-panel ${this.name} ${this.active ? 'active' : ''}">
-                ${children}
-            </div>
-        `);
+    render(...children: HTMLElement[]) {
+        return super.render(
+            dom('div', { className: `pdebug-panel ${this.name}` },
+                ...children
+            )
+        );
     }
 
     renderMenu() {
-        return (this._menu = yo`
-            <a href="#" class="pdebug-menu-item ${this.name}" onclick=${(e: MouseEvent) => this._onMenuClick(e)}>
-                ${this.title}
-            </a>
-        `);
+        return (this._menu =
+            dom('a', {
+                href: '#',
+                className: `pdebug-menu-item ${this.name}`,
+                textContent: this.title,
+                onclick: (e: MouseEvent) => this._onMenuClick(e),
+            })
+        );
     }
 
     destroy() {
+        super.destroy();
+
         this.name = '';
         this.title = '';
 

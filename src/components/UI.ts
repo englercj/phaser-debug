@@ -1,4 +1,4 @@
-import * as yo from 'yo-yo';
+import dom from '../util/dom';
 
 import Debug from '../index';
 
@@ -30,10 +30,10 @@ export default class UI extends Component {
         this.stats = new Stats(this);
         this.panels = [
             new PerformancePanel(this),
-            new ScenePanel(this)
+            new ScenePanel(this),
         ];
 
-        this._throttle = 10;
+        this._throttle = 2;
         this._throttleCount = 0;
     }
 
@@ -51,28 +51,30 @@ export default class UI extends Component {
         }
 
         if (this._throttleCount++ % this._throttle === 0) {
-            this.stats.updatePanel();
+            this.stats.update();
         }
     }
 
     render(children?: HTMLElement) {
-        return super.render(yo`
-            <div class="pdebug">
-                <div class="pdebug-menu">
-                    ${this.header.render()}
-                    ${this.stats.render()}
-                    ${this.panels.map((panel: TabPanel) => {
+        return super.render(
+            dom('div', { className: 'pdebug' },
+                dom('div', { className: 'pdebug-menu' },
+                    this.header.render(),
+                    this.stats.render(),
+                    this.panels.map((panel: TabPanel) => {
                         return panel.renderMenu();
-                    })}
-                </div>
-                ${this.panels.map((panel: TabPanel) => {
+                    })
+                ),
+                this.panels.map((panel: TabPanel) => {
                     return panel.render();
-                })}
-            </div>
-        `);
+                })
+            )
+        );
     }
 
     destroy() {
+        super.destroy();
+
         this.header.destroy();
         this.stats.destroy();
 

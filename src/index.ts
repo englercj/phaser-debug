@@ -1,5 +1,3 @@
-import * as yo from 'yo-yo';
-
 import UI from './components/UI';
 import Timings from './util/Timings';
 

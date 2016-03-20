@@ -7,7 +7,15 @@
   "main": "./src/index.ts",
   "typings": "./src/index",
   "files": [
-    "lib/"
+    "dist/",
+    "less/",
+    "src/",
+    "typescript/",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "tsconfig.json"
   ],
   "homepage": "https://github.com/englercj/phaser-debug",
   "repository": {
@@ -25,7 +33,6 @@
     "engine"
   ],
   "dependencies": {
-    "yo-yo": "^1.1.1"
   },
   "devDependencies": {
     "css-loader": "^0.23.1",
