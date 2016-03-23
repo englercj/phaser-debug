@@ -3,10 +3,14 @@ import dom from '../../util/dom';
 import TabPanel from './TabPanel';
 import UI from '../UI';
 
+let _cache: any = {};
+let _cacheId = 0;
+
 export default class ScenePanel extends TabPanel {
     selected: PIXI.DisplayObjectContainer;
     selectedLi: HTMLLIElement;
 
+    search: HTMLInputElement;
     sidebar: HTMLUListElement;
     details: HTMLDivElement;
 
@@ -16,12 +20,20 @@ export default class ScenePanel extends TabPanel {
         this.selected = null;
         this.selectedLi = null;
 
+        this.search = null;
         this.sidebar = null;
         this.details = null;
     }
 
     render() {
         return super.render(
+            this.search = dom('input', {
+                type: 'text',
+                className: 'search',
+                placeholder: 'search...',
+                onkeydown: (e: KeyboardEvent) => e.stopPropagation(),
+                onkeyup: (e: KeyboardEvent) => this._onSearchKeyup(e),
+            }),
             this.sidebar = dom('ul', { className: 'sidebar' },
                 this._renderTree(this.ui.plugin.game.stage)
             ),
@@ -48,19 +60,28 @@ export default class ScenePanel extends TabPanel {
     }
 
     private _renderTree(obj: PIXI.DisplayObjectContainer): HTMLLIElement {
-        const className = obj.children && obj.children.length ? 'has-children' : '';
-        const name = (<any>obj).name || (<any>obj).key;
+        const id = _cacheId++;
+        const hasChildren = !!(obj.children && obj.children.length);
+        let name = (<any>obj).name || (<any>obj).key;
 
-        return dom('li', { className, onclick: (e: MouseEvent) => this._onTreeItemClick(e, obj) },
+        _cache[id] = obj;
+
+        if (typeof name !== 'string' && typeof name !== 'number') {
+            name = '';
+        }
+
+        return dom('li', {
+                className: hasChildren ? 'has-children' : '',
+                dataset: { name, id },
+                onclick: (e: MouseEvent) => this._onTreeItemClick(e),
+            },
             dom.text(this._typeToString(obj)),
             name ? dom('span', { className: 'weak', textContent: ` (${name})` }) : null,
-            obj.children && obj.children.length ?
-                dom('ul', {},
-                    obj.children.map((c: PIXI.DisplayObjectContainer) => {
-                        return this._renderTree(c);
-                    })
-                )
-            : null
+            hasChildren ? dom('ul', {},
+                obj.children.map((c: PIXI.DisplayObjectContainer) => {
+                    return this._renderTree(c);
+                })
+            ) : null
         );
     }
 
@@ -77,23 +98,23 @@ export default class ScenePanel extends TabPanel {
             this._createValue('Visible:', obj.visible),
             this._createValue('Rotation:', obj.rotation),
             this._createValue('Alpha:', obj.alpha),
-            this._createValue('Position:', `(${obj.position.x}, ${obj.position.y})`),
-            this._createValue('Scale:', `(${obj.scale.x}, ${obj.scale.y})`),
-            this._createValue('Size:', `(${obj.width}, ${obj.height})`),
+            this._createPointValue('Position:', obj.position),
+            this._createPointValue('Scale:', obj.scale),
+            this._createPointValue('Size:', obj.width),
 
             dom('hr'),
 
             this._createValue('World Visible:', obj.worldVisible),
             this._createValue('World Rotation:', obj.worldRotation),
             this._createValue('World Alpha:', obj.worldAlpha),
-            this._createValue('World Position:', `(${obj.worldPosition.x}, ${obj.worldPosition.y})`),
-            this._createValue('World Scale:', `(${obj.worldScale.x}, ${obj.worldScale.y})`),
+            this._createPointValue('World Position:', obj.worldPosition),
+            this._createPointValue('World Scale:', obj.worldScale),
 
             dom('hr'),
 
             obj.children && obj.children.length ? [
                 this._createValue('Children:', obj.children.length),
-                dom('br')
+                dom('br'),
             ] : null,
 
             (<any>obj).texture ? [
@@ -106,7 +127,7 @@ export default class ScenePanel extends TabPanel {
                     })
                     :
                     dom('strong', { textContent: (<any>obj).texture.baseTexture.source }),
-                dom('br')
+                dom('br'),
             ] : null,
         ];
     }
@@ -119,6 +140,58 @@ export default class ScenePanel extends TabPanel {
         ];
     }
 
+    private _createPointValue(label: string, value: (Phaser.Point|PIXI.Point)) {
+        return [
+            dom('label', { textContent: label }),
+            dom('strong', { textContent: `(x: ${value.x}, y: ${value.y})` }),
+            dom('br'),
+        ];
+    }
+
+    private _selectTreeNode(tree: HTMLElement, name: string) {
+        if (!name) { return; }
+
+        let ret = false;
+
+        for (let i = 0; i < tree.children.length; ++i) {
+            let elm = <HTMLLIElement>tree.children[i];
+            let child = dom.getFirstChild(elm, 'ul');
+            let dname = elm.dataset['name'];
+
+            // if name matches, select and unwind
+            if (dname && dname.indexOf(name) === 0) {
+                this._select(elm);
+                return true;
+            }
+            // child is matched, expand this one
+            else if (child && this._selectTreeNode(child, name)) {
+                elm.classList.add('expanded');
+                ret = true;
+            }
+        }
+
+        return ret;
+    }
+
+    private _select(element: HTMLLIElement) {
+        if (this.selectedLi) {
+            this.selectedLi.classList.remove('selected');
+        }
+
+        element.classList.add('selected');
+
+        this.selectedLi = element;
+        this.selected = _cache[element.dataset['id']];
+
+        dom.empty(this.details);
+        dom.appendChildren(this.details, this._renderDetails(this.selected));
+    }
+
+    private _onSearchKeyup(event?: KeyboardEvent) {
+        event.stopPropagation();
+        this._selectTreeNode(this.sidebar, this.search.value);
+    }
+
     private _onRefreshClick(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
@@ -126,23 +199,17 @@ export default class ScenePanel extends TabPanel {
         dom.empty(this.sidebar);
         dom.empty(this.details);
         this.sidebar.appendChild(this._renderTree(this.ui.plugin.game.stage));
+        this._selectTreeNode(this.sidebar, this.search.value);
     }
 
-    private _onTreeItemClick(event: MouseEvent, obj: PIXI.DisplayObjectContainer) {
+    private _onTreeItemClick(event: MouseEvent) {
         event.stopPropagation();
 
-        if (this.selectedLi) {
-            this.selectedLi.classList.remove('selected');
-        }
+        let element = <HTMLLIElement>event.currentTarget;
 
-        this.selected = obj;
-        this.selectedLi = <HTMLLIElement>event.currentTarget;
+        this._select(element);
 
-        this.selectedLi.classList.add('selected');
-        this.selectedLi.classList.toggle('expanded');
-
-        dom.empty(this.details);
-        dom.appendChildren(this.details, this._renderDetails(obj));
+        element.classList.toggle('expanded');
     };
 
     private _typeToString(node: any) {

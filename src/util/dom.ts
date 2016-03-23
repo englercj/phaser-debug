@@ -1,10 +1,19 @@
 type TChildNode = (Node|Node[]);
 
 function createElement(name: string, props?: TTable<any>, ...children: TChildNode[]) {
-    let elm = document.createElement(name);
+    let elm = <any>document.createElement(name);
 
     for (let p in props) {
-        (<any>elm)[p] = props[p];
+        if (typeof props[p] === 'object') {
+            if (!elm[p]) { elm[p] = {}; }
+
+            for (let p2 in props[p]) {
+                elm[p][p2] = props[p][p2];
+            }
+        }
+        else {
+            elm[p] = props[p];
+        }
     }
 
     appendChildren(elm, children);
@@ -33,6 +42,16 @@ function empty(elm: Node) {
     while (elm.lastChild) {
         elm.removeChild(elm.lastChild);
     }
+}
+
+function getFirstChild(elm: HTMLElement, tagName: string) {
+    for (let i = 0; i < elm.children.length; ++i) {
+        if (elm.children[i].tagName.toLowerCase() === tagName.toLowerCase()) {
+            return <HTMLElement>elm.children[i];
+        }
+    }
+
+    return null;
 }
 
 interface IDOM {
@@ -80,11 +99,13 @@ interface IDOM {
     text: (value: string) => Text;
     empty: (elm: Node) => void;
     appendChildren: (elm: HTMLElement, children: TChildNode[]) => void;
+    getFirstChild: (elm: HTMLElement, tagName: string) => HTMLElement;
 }
 
 let dom = <IDOM>createElement;
 dom.text = text;
 dom.empty = empty;
 dom.appendChildren = appendChildren;
+dom.getFirstChild = getFirstChild;
 
 export default dom;

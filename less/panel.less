@@ -145,20 +145,26 @@
 
         // the scene tree panel
         &.scene_tree {
+            .search {
+                position: absolute;
+            }
+
             .sidebar {
                 float: left;
-                height: 100%;
+                height: @panel_height - 25px;
 
                 min-width: 175px;
                 max-width: 500px;
 
                 resize: horizontal;
                 overflow: auto;
+
+                margin: 25px 0 0 0;
             }
 
             .details {
                 float: left;
-                height: 100%;
+                height: @panel_height;
             }
 
             .refresh {
