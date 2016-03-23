@@ -337,6 +337,7 @@ function getInput(obj: any, prop: string, property?: string) {
     switch (property || prop) {
         case 'visible':
             options.type = 'checkbox';
+            options.checked = value;
             break;
 
         case 'rotation':
@@ -372,7 +373,12 @@ function getInput(obj: any, prop: string, property?: string) {
     }
 
     options.onchange = (e: Event) => {
-        obj[prop] = (<HTMLInputElement>e.currentTarget).value;
+        if (options.type === 'checkbox') {
+            obj[prop] = (<HTMLInputElement>e.currentTarget).checked;
+        }
+        else {
+            obj[prop] = (<HTMLInputElement>e.currentTarget).value;
+        }
         // TODO: refresh details panel
     };
 
