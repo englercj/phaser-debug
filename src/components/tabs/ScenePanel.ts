@@ -44,7 +44,7 @@ export default class ScenePanel extends TabPanel {
                 onclick: (e: MouseEvent) => this._onRefreshClick(e),
             }),
             this.details = dom('div', { className: 'details' },
-                this._renderDetails(this.selected)
+                <any>this._renderDetails(this.selected)
             )
         );
     }
@@ -75,7 +75,7 @@ export default class ScenePanel extends TabPanel {
                 dataset: { name, id },
                 onclick: (e: MouseEvent) => this._onTreeItemClick(e),
             },
-            dom.text(this._typeToString(obj)),
+            dom.text(getTypeString(obj)),
             name ? dom('span', { className: 'weak', textContent: ` (${name})` }) : null,
             hasChildren ? dom('ul', {},
                 obj.children.map((c: PIXI.DisplayObjectContainer) => {
@@ -89,31 +89,31 @@ export default class ScenePanel extends TabPanel {
         if (!obj) { return []; }
 
         return [
-            dom('br'),
-            dom('br'),
-
-            this._createValue('Name:', (<any>obj).name),
-            this._createValue('Key:', (<any>obj).key),
-            this._createValue('Type:', (<any>obj).typeString || this._typeToString(obj)),
-            this._createValue('Visible:', obj.visible),
-            this._createValue('Rotation:', obj.rotation),
-            this._createValue('Alpha:', obj.alpha),
-            this._createPointValue('Position:', obj.position),
-            this._createPointValue('Scale:', obj.scale),
-            this._createPointValue('Size:', obj.width),
+            this._staticField('Name:', (<any>obj).name),
+            this._staticField('Key:', (<any>obj).key),
+            this._staticField('Type:', (<any>obj).typeString || getTypeString(obj)),
+            this._editableField('Visible:', obj, 'visible'),
+            this._editableField('Rotation:', obj, 'rotation'),
+            this._editableField('Alpha:', obj, 'alpha'),
+            this._editableField('Width:', obj, 'width'),
+            this._editableField('Height:', obj, 'height'),
+            this._editablePointField('Position:', obj, 'position'),
+            this._editablePointField('Scale:', obj, 'scale'),
+            this._editablePointField('Anchor:', obj, 'anchor'),
+            this._editablePointField('Pivot:', obj, 'pivot'),
 
             dom('hr'),
 
-            this._createValue('World Visible:', obj.worldVisible),
-            this._createValue('World Rotation:', obj.worldRotation),
-            this._createValue('World Alpha:', obj.worldAlpha),
-            this._createPointValue('World Position:', obj.worldPosition),
-            this._createPointValue('World Scale:', obj.worldScale),
+            this._staticField('World Visible:', obj.worldVisible),
+            this._staticField('World Rotation:', obj.worldRotation),
+            this._staticField('World Alpha:', obj.worldAlpha),
+            this._staticPointField('World Position:', obj.worldPosition),
+            this._staticPointField('World Scale:', obj.worldScale),
 
             dom('hr'),
 
             obj.children && obj.children.length ? [
-                this._createValue('Children:', obj.children.length),
+                this._staticField('Children:', obj.children.length),
                 dom('br'),
             ] : null,
 
@@ -126,21 +126,42 @@ export default class ScenePanel extends TabPanel {
                         textContent: (<any>obj).texture.baseTexture.source.src,
                     })
                     :
-                    dom('strong', { textContent: (<any>obj).texture.baseTexture.source }),
+                    dom('strong', { textContent: (<any>obj).texture.baseTexture.source.tagName }),
                 dom('br'),
             ] : null,
         ];
     }
 
-    private _createValue(label: string, value: any) {
+    private _editableField(label: string, obj: any, property: string) {
         return [
             dom('label', { textContent: label }),
-            dom('strong', { textContent: value }),
+            getInput(obj, property),
             dom('br'),
         ];
     }
 
-    private _createPointValue(label: string, value: (Phaser.Point|PIXI.Point)) {
+    private _editablePointField(label: string, obj: any, property: string) {
+        if (!obj[property]) { return []; }
+
+        return [
+            dom('label', { textContent: label }),
+            dom.text('x: '),
+            getInput(obj[property], 'x', property),
+            dom.text(', y: '),
+            getInput(obj[property], 'y', property),
+            dom('br'),
+        ];
+    }
+
+    private _staticField(label: string, value: (string|number|boolean)) {
+        return [
+            dom('label', { textContent: label }),
+            dom('strong', { textContent: typeof value !== 'object' ? value : '' }),
+            dom('br'),
+        ];
+    }
+
+    private _staticPointField(label: string, value: (Phaser.Point|PIXI.Point)) {
         return [
             dom('label', { textContent: label }),
             dom('strong', { textContent: `(x: ${value.x}, y: ${value.y})` }),
@@ -184,7 +205,7 @@ export default class ScenePanel extends TabPanel {
         this.selected = _cache[element.dataset['id']];
 
         dom.empty(this.details);
-        dom.appendChildren(this.details, this._renderDetails(this.selected));
+        dom.appendChildren(this.details, <any>this._renderDetails(this.selected));
     }
 
     private _onSearchKeyup(event?: KeyboardEvent) {
@@ -210,101 +231,153 @@ export default class ScenePanel extends TabPanel {
         this._select(element);
 
         element.classList.toggle('expanded');
-    };
+    }
+}
 
-    private _typeToString(node: any) {
-        // If no phaser type defined, try to guess
-        if (node.type === undefined) {
-            // Phaser.Stage does not have its 'type' property defined, so check here.
-            if (node instanceof Phaser.Stage) {
-                return 'Stage';
-            }
-            // PIXI.Stage was removed in Phaser 2.4.4, so make sure it's defined first.
-            else if (typeof (<any>PIXI).Stage !== 'undefined' && node instanceof (<any>PIXI).Stage) {
-                return 'PIXI Stage';
-            }
-            else if (node instanceof PIXI.Sprite) {
-                return 'PIXI Sprite';
-            }
-            else if (node instanceof PIXI.DisplayObjectContainer) {
-                return 'PIXI DisplayObjectContainer';
-            }
-            else if (node instanceof PIXI.DisplayObject) {
-                return 'PIXI DisplayObject';
-            }
-            else {
-                return 'Unknown';
-            }
+function getTypeString(node: any) {
+    // If no phaser type defined, try to guess
+    if (node.type === undefined) {
+        // Phaser.Stage does not have its 'type' property defined, so check here.
+        if (node instanceof Phaser.Stage) {
+            return 'Stage';
         }
-        // return a string for the phaser type
+        // PIXI.Stage was removed in Phaser 2.4.4, so make sure it's defined first.
+        else if (typeof (<any>PIXI).Stage !== 'undefined' && node instanceof (<any>PIXI).Stage) {
+            return 'PIXI Stage';
+        }
+        else if (node instanceof PIXI.Sprite) {
+            return 'PIXI Sprite';
+        }
+        else if (node instanceof PIXI.DisplayObjectContainer) {
+            return 'PIXI DisplayObjectContainer';
+        }
+        else if (node instanceof PIXI.DisplayObject) {
+            return 'PIXI DisplayObject';
+        }
         else {
-            switch (node.type) {
-                case Phaser.SPRITE:
-                    return 'Sprite';
-
-                case Phaser.BUTTON:
-                    return 'Button';
-
-                case Phaser.IMAGE:
-                    return 'Image';
-
-                case Phaser.GRAPHICS:
-                    return 'Graphics';
-
-                case Phaser.TEXT:
-                    return 'Text';
-
-                case Phaser.TILESPRITE:
-                    return 'Tile Sprite';
-
-                case Phaser.BITMAPTEXT:
-                    return 'Bitmap Text';
-
-                case Phaser.GROUP:
-                    return 'Group';
-
-                case Phaser.RENDERTEXTURE:
-                    return 'Render Texture';
-
-                case Phaser.TILEMAP:
-                    return 'Tilemap';
-
-                case Phaser.TILEMAPLAYER:
-                    return 'Tilemap Layer';
-
-                case Phaser.EMITTER:
-                    return 'Emitter';
-
-                case Phaser.POLYGON:
-                    return 'Polygon';
-
-                case Phaser.BITMAPDATA:
-                    return 'Bitmap Data';
-
-                case Phaser.CANVAS_FILTER:
-                    return 'Canvas Filter';
-
-                case Phaser.WEBGL_FILTER:
-                    return 'WebGL Filter';
-
-                case Phaser.ELLIPSE:
-                    return 'Ellipse';
-
-                case Phaser.SPRITEBATCH:
-                    return 'Sprite Batch';
-
-                case Phaser.RETROFONT:
-                    return 'Retro Font';
-
-                case Phaser.POINTER:
-                    return 'Pointer';
-
-                case Phaser.ROPE:
-                    return 'Rope';
-
-                default:
-                    return 'Unknown';
-            }
+            return 'Unknown';
         }
     }
+    // return a string for the phaser type
+    else {
+        switch (node.type) {
+            case Phaser.SPRITE:
+                return 'Sprite';
+
+            case Phaser.BUTTON:
+                return 'Button';
+
+            case Phaser.IMAGE:
+                return 'Image';
+
+            case Phaser.GRAPHICS:
+                return 'Graphics';
+
+            case Phaser.TEXT:
+                return 'Text';
+
+            case Phaser.TILESPRITE:
+                return 'Tile Sprite';
+
+            case Phaser.BITMAPTEXT:
+                return 'Bitmap Text';
+
+            case Phaser.GROUP:
+                return 'Group';
+
+            case Phaser.RENDERTEXTURE:
+                return 'Render Texture';
+
+            case Phaser.TILEMAP:
+                return 'Tilemap';
+
+            case Phaser.TILEMAPLAYER:
+                return 'Tilemap Layer';
+
+            case Phaser.EMITTER:
+                return 'Emitter';
+
+            case Phaser.POLYGON:
+                return 'Polygon';
+
+            case Phaser.BITMAPDATA:
+                return 'Bitmap Data';
+
+            case Phaser.CANVAS_FILTER:
+                return 'Canvas Filter';
+
+            case Phaser.WEBGL_FILTER:
+                return 'WebGL Filter';
+
+            case Phaser.ELLIPSE:
+                return 'Ellipse';
+
+            case Phaser.SPRITEBATCH:
+                return 'Sprite Batch';
+
+            case Phaser.RETROFONT:
+                return 'Retro Font';
+
+            case Phaser.POINTER:
+                return 'Pointer';
+
+            case Phaser.ROPE:
+                return 'Rope';
+
+            default:
+                return 'Unknown';
+        }
+    }
+}
+
+function getInput(obj: any, prop: string, property?: string) {
+    let value: any = obj[prop];
+    let options: any = { value };
+
+    switch (property || prop) {
+        case 'visible':
+            options.type = 'checkbox';
+            break;
+
+        case 'rotation':
+            options.type = 'number';
+            options.min = 0;
+            options.max = Math.PI * 2;
+            options.step = Math.PI / 8;
+            break;
+
+        case 'alpha':
+        case 'anchor':
+        case 'pivot':
+            options.type = 'number';
+            options.min = 0;
+            options.max = 1;
+            options.step = 0.1;
+            break;
+
+        case 'position':
+            options.type = 'number';
+            break;
+
+        case 'scale':
+            options.type = 'number';
+            options.min = 0;
+            break;
+
+        case 'width':
+        case 'height':
+        case 'size':
+            options.type = 'number';
+            break;
+    }
+
+    options.onchange = (e: Event) => {
+        obj[prop] = (<HTMLInputElement>e.currentTarget).value;
+        // TODO: refresh details panel
+    };
+
+    options.onkeydown = (e: KeyboardEvent) => e.stopPropagation();
+    options.onkeyup = (e: KeyboardEvent) => e.stopPropagation();
+
+    return dom('input', options);
 }

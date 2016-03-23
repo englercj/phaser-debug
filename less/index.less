@@ -1,2 +1,249 @@
-@import "./panel";
-@import "./forms";
+@background: #333;
+@foreground: #aaa;
+@accent: #00bf00;
+@strong: #fff;
+
+@activeTabForeground: @accent;
+@activeTabBackground: #111;
+
+@seperatorWidth: 1px;
+@separatorColor: lighten(@background, 20%);
+
+@accentHeight: 3px;
+
+@bar_height: 32px;
+@panel_height: 265px;
+
+@padding: 10px;
+
+@search-width: 120px;
+
+@font-size: 14px;
+
+// container
+.pdebug {
+    font-size: @font-size;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
+    color: @foreground;
+    background: @background;
+    border-top: @accentHeight solid @accent;
+
+    z-index: 999999;
+
+    a {
+        color: @accent;
+    }
+
+    label {
+        display: inline-block;
+        width: 100px;
+    }
+
+    strong {
+        font-weight: normal;
+        color: @strong;
+    }
+
+    input {
+        margin: 0;
+
+        &[type=checkbox] {
+            margin: 3px 0;
+        }
+    }
+
+    .weak {
+        color: @foreground;
+    }
+
+    // menu bar
+    .pdebug-menu {
+        height: @bar_height;
+        padding: 0 15px;
+        font-size: 0; // this makes the space between the inline-block elements go away
+
+        text-shadow: 1px 1px 0 #111;
+
+        background: @background;
+
+        span {
+            display: inline-block;
+            font-size: @font-size;
+            height: @bar_height;
+            line-height: @bar_height;
+        }
+
+        a {
+            font-size: @font-size;
+        }
+
+        // head of the menu bar
+        .pdebug-head {
+            padding-right: 25px;
+            border-right: @seperatorWidth solid @separatorColor;
+        }
+
+        // main bar stats
+        .pdebug-stats {
+            float:right;
+            padding: 0 0 0 @padding;
+
+            // an item on the stats bar
+            .pdebug-stats-item {
+                display: inline-block;
+                width: 100px;
+
+                text-align: right;
+
+                > span {
+                    color: @strong;
+                }
+
+                // fps stat item
+                &.fps {}
+
+                // ms stat item
+                &.ms {}
+
+                // sprites stat item
+                &.obj {
+                    width: 100px;
+                    border: none;
+                }
+            }
+        }
+
+        // menu items (to switch between panels)
+        .pdebug-menu-item {
+            color: @strong;
+
+            display: inline-block;
+
+            text-decoration: none;
+
+            padding: 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
+            border-right: @seperatorWidth solid @separatorColor;
+
+            &.active {
+                color: @activeTabForeground;
+                background: @activeTabBackground;
+            }
+        }
+    }
+
+    // panels
+    .pdebug-panel {
+        display: none;
+        height: @panel_height;
+        overflow: hidden;
+
+        font-size: 12px;
+
+        background: @activeTabBackground;
+
+        &.active {
+            display: block;
+        }
+
+        // the performance panel
+        &.performance {}
+
+        // the scene tree panel
+        &.scene_tree {
+            .search {
+                position: absolute;
+                left: 0;
+                width: @search-width;
+            }
+
+            .refresh {
+                position: absolute;
+                left: @search-width + 10px;
+            }
+
+            .details {
+                overflow: auto;
+                padding: 0 10px;
+                height: @panel_height;
+                border-left: solid 1px @foreground;
+            }
+
+            .sidebar {
+                float: left;
+                height: @panel_height - 25px;
+
+                min-width: 175px;
+                max-width: 500px;
+
+                resize: horizontal;
+                overflow: auto;
+
+                padding: 0;
+                margin: 25px 0 0 0;
+
+                li {
+                    color: @strong;
+
+                    list-style: none;
+                    cursor: pointer;
+
+                    &.expanded > ul {
+                        display: block;
+                    }
+
+                    &.selected {
+                        color: @accent;
+                    }
+
+                    &::before {
+                        content: '-';
+
+                        display: inline-block;
+
+                        width: 12px;
+                        height: 1px;
+
+                        color: @foreground;
+                    }
+
+                    &.has-children {
+                        &::before {
+                            content: '';
+
+                            display: inline-block;
+
+                            width: 0;
+                            height: 0;
+
+                            margin: 0 6px 0 0;
+
+                            border-top: 6px solid transparent;
+                            border-bottom: 6px solid transparent;
+                            border-right: none;
+                            border-left: 6px solid rgba(255, 255, 255, 0.3);
+                        }
+
+                        &.expanded::before {
+                            margin: 0 4px 0 -4px;
+
+                            border-top: 6px solid rgba(255, 255, 255, 0.3);
+                            border-left: 6px solid transparent;
+                            border-right: 6px solid transparent;
+                            border-bottom: none;
+                        }
+                    }
+
+                    > ul {
+                        display: none;
+                        padding: 0 0 0 10px;
+                    }
+                }
+            }
+        }
+    }
+}
