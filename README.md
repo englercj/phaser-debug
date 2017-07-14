@@ -25,6 +25,22 @@ game.add.plugin(Phaser.Plugin.Debug);
 
 [10]: https://github.com/englercj/phaser-debug/releases
 
+## TypeScript Usage
+Add the `phaser-debug.js` script to the page (see the first part of the usage section above).
+
+In your `phaser.d.ts` file, inside `module Plugin` add:
+```typescript
+class Debug extends Phaser.Plugin {
+
+   constructor(game: Phaser.Game, parent: Phaser.PluginManager);
+}
+```
+Activate the plugin:
+
+```typescript
+this.game.add.plugin(new Phaser.Plugin.Debug(this.game, this.game.plugins));
+```
+
 ## Browser Support
 
 Currently this module supports the following browsers:
